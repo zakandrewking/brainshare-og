@@ -26,8 +26,6 @@ services:
     environment:
       REACT_APP_SUPABASE_URL: ${SITE_URL}
       REACT_APP_SUPABASE_ANON_KEY: ${ANON_KEY}
-    volumes:
-      - ./frontend:/app
 
   studio:
     container_name: supabase-studio
