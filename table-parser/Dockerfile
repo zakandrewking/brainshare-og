@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
-COPY src/ /app/
+COPY src /app/src
 
 EXPOSE 5000
 

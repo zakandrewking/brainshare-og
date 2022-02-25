@@ -149,7 +149,7 @@ services:
             - admin
 
   - name: table-parser
-    _comment: "Table Parser: /api/table-parser/* -> http://table-parser:8080/*"
+    _comment: "Table Parser: /api/table-parser/* -> http://table-parser:5000/*"
     url: http://table-parser:5000/
     routes:
       - name: table-parser-all

@@ -22,19 +22,27 @@ cp .env.example .env
 ## Commands
 
 ```
-# Start:
-docker-compose -f docker-compose.yml -f ./deploy/docker-compose.dev.yml up --build -d
-# Stop:
+# Start /rebuild dev
+docker-compose up --build -d
+
+# Stop
 docker-compose down
-# Destroy:
-docker-compose -f docker-compose.yml -f ./deploy/docker-compose.dev.yml down -v --remove-orphans
 
+# Destroy
+docker-compose down -v --remove-orphans
+
+# show logs
 docker-compose logs -f
+docker-compose logs -f <service name>
 
-docker exec -it supabase-db psql -h db -p 5432 postgres postgres
+# connect to db
+docker-compose exec db psql -h db -p 5432 postgres postgres
 
 # rebuild one container
-docker-compose -f docker-compose.yml -f ./deploy/docker-compose.dev.yml up -d --no-deps --build <service name>
+docker-compose up -d --no-deps --build <service name>
+
+# restart one container
+docker-compose restart <service name>
 ```
 
 ## Getting emails

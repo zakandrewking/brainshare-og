@@ -1,35 +1,98 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Body } from './Components'
+import useWebSocket from 'react-use-websocket'
+import { Body, Button } from './Components'
+import { MessageBoxContext } from '../context/MessageBox'
+import { sliceFile } from '../util/files'
+import { UserSessionContext } from '../context/UserSession'
+import { Link } from 'react-router-dom'
+import { Session } from '@supabase/supabase-js'
+import { TableParserMessage } from '../schema/table-parser'
+
 import './Home.css'
 
-function MyDropzone () {
+function MyDropzone ({ session }: { session: Session }) {
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
+  const setMessage = useContext(MessageBoxContext)
 
-  const onDrop = useCallback((acceptedFiles) => {
+  const [buttonLabel, setButtonLabel] = useState('lasers')
+
+  const { sendMessage, sendJsonMessage } = useWebSocket(
+    'ws://' + window.location.host + '/api/table-parser/sock',
+    {
+      onOpen: () => {
+        console.log('websocket open')
+        setStatus('Connected')
+        // TODO check for current file and update UI
+      },
+      onMessage: (event) => {
+        console.debug('websocket message received', event)
+        const message: TableParserMessage = JSON.parse(event.data)
+        console.debug(message)
+
+        // for testing
+        if (message.hasLasers) {
+          setButtonLabel(message.hasLasers)
+        }
+
+        if (message.status === 'UPLOAD_SUCCESS') {
+          setStatus('Uploaded')
+        } else if (message.status === 'SAVED') {
+          setStatus('Saved')
+        } else if (message.status === 'ERROR') {
+          console.warn(message.error)
+          setStatus('Failed')
+          setProgress(0)
+        }
+      },
+      onClose: () => {
+        console.log('websocket closed')
+        setStatus('Disconnected')
+      },
+      shouldReconnect: (closeEvent) => true
+    }
+  )
+
+  const onDrop = async (acceptedFiles: File[]) => {
     setProgress(0)
-    setStatus('uploading')
+    setStatus('Uploading')
 
-    const formData = new FormData()
-    formData.append('file', acceptedFiles[0]) // TODO warn on multiple files
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api/table-parser/parse', true)
-    xhr.upload.onprogress = (event) => {
-      const percentage = +((event.loaded / event.total) * 100).toFixed(2)
-      setProgress(percentage)
+    let file
+    try {
+      ;[file] = acceptedFiles
+    } catch {
+      throw Error('Needs exactly one file')
     }
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState !== 4) return
-      if (xhr.status !== 200) {
-        console.warn(xhr)
-        setStatus('error')
+    const { nSlices, nextSlice } = sliceFile(acceptedFiles[0])
+    const message: TableParserMessage = {
+      file: {
+        name: file.name,
+        nSlices,
+        accessToken: session.access_token,
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      },
+      status: 'PREPARE_UPLOAD',
+      error: ''
+    }
+    try {
+      sendJsonMessage(message)
+    } catch {
+      setMessage('Could not connect. Try again in a few minutes.')
+    }
+    for (let i = 0; i < nSlices; i++) {
+      try {
+        sendMessage(await nextSlice())
+      } catch {
+        setMessage('Could not connect. Try again in a few minutes.')
       }
-      setStatus('success')
-      setProgress(100)
+      const percentage = (i + 1) / nSlices
+      setProgress(percentage)
+      setStatus('Waiting for confirmation')
     }
-    xhr.send(formData)
-  }, [])
+  }
+
   const {
     getRootProps,
     getInputProps,
@@ -63,35 +126,59 @@ function MyDropzone () {
             Drag &apos;n&apos; drop .xlsx file here, or click to select a file
           </p>
             )}
+        <div>Status: {status}</div>
+        <div className="p-3">
+          <svg style={{ width: '100px', height: '40px' }}>
+            <rect width="100%" height="100%" fill="grey"></rect>
+            <rect
+              width={(progress * 100).toFixed(2) + '%'}
+              height="100%"
+              fill="green"
+            ></rect>
+          </svg>
+        </div>
       </div>
       {acceptedFileItems}
       {fileRejectionItems}
-      <div>Status: {status}</div>
-      <svg style={{ width: '100px', height: '40px' }}>
-        <rect width="100%" height="100%" fill="grey"></rect>
-        <rect width={progress + '%'} height="100%" fill="green"></rect>
-      </svg>
+      <Button
+        onClick={() => {
+          const message: TableParserMessage = {
+            status: 'LASERS',
+            hasLasers: buttonLabel,
+            error: ''
+          }
+          sendJsonMessage(message)
+        }}
+      >
+        {buttonLabel}
+      </Button>
     </div>
   )
 }
 
 function Home () {
-  const [buttonLabel, setButtonLabel] = useState('shootin Lasers')
+  const session = useContext(UserSessionContext)
+  useEffect(() => {
+    console.log(session)
+  })
   return (
     <Body>
-      <MyDropzone></MyDropzone>
-      <button
-        onClick={() => {
-          fetch('/api/table-parser/get-file')
-            .then((res) => res.json())
-            .then((data) => setButtonLabel(data.result))
-        }}
-      >
-        {buttonLabel}
-      </button>
+      {session
+        ? (
+        <MyDropzone session={session}></MyDropzone>
+          )
+        : (
+        <div className="flex justify-center">
+          <Link to="/log-in" className="">
+            <Button>Log In to Upload a File</Button>
+          </Link>
+        </div>
+          )}
     </Body>
   )
 }
+
+// TODO fill screen drop box
 //       <form id="my-form" style={{
 // width: '100%',
 // height: '100%',

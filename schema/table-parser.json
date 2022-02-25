@@ -1,0 +1,53 @@
+{
+  "title": "Table Parser Message",
+  "type": "object",
+  "properties": {
+    "status": {
+      "enum": [
+        "PREPARE_UPLOAD",
+        "UPLOAD_SUCCESS",
+        "SAVED",
+        "LASERS",
+        "ERROR"
+      ],
+      "type": "string"
+    },
+    "error": {
+      "type": "string",
+      "default": ""
+    },
+    "file": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "nSlices": {
+          "type": "number"
+        },
+        "accessToken": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "nSlices",
+        "accessToken",
+        "contentType"
+      ]
+    },
+    "hasLasers": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "isBinary",
+    "status",
+    "error"
+  ]
+}

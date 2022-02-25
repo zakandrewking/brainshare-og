@@ -1,6 +1,16 @@
 version: "3.8"
 
 services:
+  frontend:
+    volumes:
+      - ./frontend/public:/app/public
+      - ./frontend/src:/app/src
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/postcss.config.js:/app/postcss.config.js
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/yarn.lock:/app/yarn.lock
+
   mail:
     container_name: supabase-mail
     image: inbucket/inbucket:stable

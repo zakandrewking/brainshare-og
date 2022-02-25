@@ -5,7 +5,11 @@ WORKDIR /app
 COPY package.json yarn.lock /app/
 RUN yarn install
 
-COPY src/ public/ tsconfig.json /app/
+COPY src /app/src
+COPY public /app/public
+COPY postcss.config.js tailwind.config.js tsconfig.json /app/
+
+ENV PATH /app/node_modules/.bin:$PATH
 
 EXPOSE 3000
 

@@ -10,6 +10,8 @@ import Home from './components/Home'
 import PageLayout from './components/PageLayout'
 import LogIn from './components/LogIn'
 import Account from './components/Account'
+import DatabaseList from './components/DatabaseList'
+import DatabaseView from './components/DatabaseView'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -17,9 +19,12 @@ ReactDOM.render(
       <UserSessionProvider>
         <Routes>
           <Route element={<PageLayout />}>
-            <Route path="/" element={<Home />}></Route>
-            <Route path="/log-in" element={<LogIn />}></Route>
-            <Route path="/account" element={<Account />}></Route>
+            <Route path="/" element={<Home />} />
+            <Route path="/log-in" element={<LogIn />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/database" element={<DatabaseList />} />
+            <Route path="/database/:databaseId" element={<DatabaseView />} />
+            <Route path="*" element={<p>Nothing here!</p>} />
           </Route>
         </Routes>
       </UserSessionProvider>
