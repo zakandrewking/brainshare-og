@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-slate-800 dark:text-slate-100;
+  }
+  h1 {
+    @apply text-2xl pb-6;
+  }
+  h2 {
+    @apply text-xl pb-4;
+  }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Domine&display=swap');

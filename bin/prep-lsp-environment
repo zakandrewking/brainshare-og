@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+echo "frontend"
+cd ../frontend
+yarn install --dev
+
+echo "table-parser"
+cd ../table-parser
+pip install -r requirements.txt
+pip install -r requirements.dev.txt

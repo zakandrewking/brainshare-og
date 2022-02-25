@@ -1,0 +1,9 @@
+{
+	"name": "table-parser",
+	"dockerComposeFile": ["../docker-compose.yml"],
+	"service": "table-parser-dev",
+	"shutdownAction": "none",
+	"extensions": [],
+	// Open the sub-folder with the source code
+	"workspaceFolder": "/app"
+}
