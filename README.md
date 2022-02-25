@@ -45,6 +45,10 @@ docker-compose up -d --no-deps --build <service name>
 docker-compose restart <service name>
 ```
 
-## Getting emails
+## Ports
+
+Runs the application at http://localhost:3000
+
+Supabase console is at http://localhost:4000
 
 For development, you can see emails with inbucket at localhost:9000
