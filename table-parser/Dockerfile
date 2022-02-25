@@ -9,6 +9,4 @@ COPY src /app/src
 
 EXPOSE 5000
 
-ENTRYPOINT [ "python" ]
-
-CMD [ "src/app.py" ]
+CMD [ "python" "src/app.py" ]
