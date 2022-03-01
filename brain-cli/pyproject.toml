@@ -1,14 +1,22 @@
 [tool.poetry]
 name = "brain-cli"
 version = "0.1.0"
-description = ""
-authors = ["Zachary King <zaking17@gmail.com>"]
+description = "Brainshare CLI https://brainshare.io"
+authors = ["Zachary King"]
+readme = "README.md"
+
+[tool.poetry.scripts]
+brain = "brain_cli.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.9"
+typer = {extras = ["all"], version = "^0.4.0"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+mypy = "*"
+black = "*"
+types-setuptools = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

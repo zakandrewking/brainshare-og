@@ -18,4 +18,4 @@ pip install -r requirements.dev.txt
 
 echo "brain-cli"
 cd ../brain-cli
-pip install -e ".[dev]"
+poetry install
