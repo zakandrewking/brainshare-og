@@ -35,3 +35,7 @@ services:
       HTTPX_LOG_LEVEL: debug
     volumes:
       - ./table-parser:/app
+
+  task-worker-py:
+    volumes:
+      - ./task-worker-py:/app
