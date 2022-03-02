@@ -1,15 +1,17 @@
-from .util import increment
-
 import os
+import string
+import random
 from typing import Optional, Final, Any
 import logging
 import sys
+from flask import session
 from pydantic import BaseModel, Field, Extra
 import pandas as pd  # type: ignore
 import io
 import httpx
 import asyncio
-from autobahn.asyncio.websocket import WebSocketServerFactory, WebSocketServerProtocol  # type: ignore
+from autobahn.asyncio.websocket import WebSocketServerFactory, WebSocketServerProtocol
+from supabase import create_client, Client
 
 from schema.table_parser import File, TableParserMessage, Status
 
@@ -33,10 +35,10 @@ def getEnv(key: str) -> str:
 
 
 # supabase
+SUPABASE_URL = getEnv("SUPABASE_URL")
 SUPABASE_STORAGE_URL = getEnv("SUPABASE_STORAGE_URL")
 SUPABASE_ANON_KEY = getEnv("SUPABASE_ANON_KEY")
-BUCKET_POSTFIX = "uploaded_files"
-
+BUCKET_NAME = "uploaded_files"
 
 #         # in parallel to saving, begin generating postgres init sql files
 #         # Q: how does the user intervene in the process? session ID in flask?
@@ -71,19 +73,14 @@ class FileData(BaseModel):
 #     }
 
 
-def upload_to_supabase(bucket_name: str, file: File, file_data: FileData) -> None:
-    # check that file does not exist;
-    file_name = file.name  # TODO give each user their own bucket!
-    for a in range(20):  # fail after 20 tries
-        url: str = f"{SUPABASE_STORAGE_URL}/object/{bucket_name}/{file_name}"
-        result = httpx.get(url)
-        if result.status_code != 404:
-            file_name = increment(file_name)
-        else:
-            break
-    else:
-        raise Exception("Too many tries incrementing file name")
-
+def upload_file(file: File, file_data: FileData) -> None:
+    """1 upload data into bucket with random object name"""
+    file_base, file_ext = file.name.rsplit(".")
+    rand = "".join(
+        random.choice(string.ascii_lowercase + string.digits) for _ in range(10)
+    )
+    object_name = f"{file_base[:10]}.{rand}.{file_ext}"
+    url: str = f"{SUPABASE_STORAGE_URL}/object/{BUCKET_NAME}/{object_name}"
     files = {"upload-file": (file.name, io.BytesIO(file_data.data), file.content_type)}
     headers = {
         "apikey": SUPABASE_ANON_KEY,
@@ -91,9 +88,19 @@ def upload_to_supabase(bucket_name: str, file: File, file_data: FileData) -> Non
         "cache-control": "3600",
         "x-upsert": "false",
     }
-    result = httpx.post(url, files=files, headers=headers)
-    logging.debug(f"upload result: {result.text}")
-    result.raise_for_status()
+    object_result = httpx.post(url, files=files, headers=headers)
+    logging.debug(f"upload result: {object_result.text}")
+    object_result.raise_for_status()
+
+
+def insert_upload(file: File, file_data: FileData) -> None:
+    """2 insert into table for user "uploads" with foreign key to bucket"""
+    url = f"{SUPABASE_URL}/tables/user_table_upload/"
+    headers = {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + file.access_token,
+    }
+    object_result = httpx.post(url, files=files, headers=headers)
 
 
 # Websockets
@@ -161,9 +168,12 @@ class MyServerProtocol(WebSocketServerProtocol):
             # create_base(self.file)
             # self.sendStatus("CREATE_BASE_SUCCESS")
 
-            # upload
-            # const fileName = `${session?.user.id}${Math.random()}.${fileExt}`
-            upload_to_supabase(bucket_name, self.file, self.file_data)
+            # upload file and insert upload row to track details
+            try:
+                upload_file(self.file, self.file_data)
+                insert_upload(self.file, self.file_data)
+            except Exception as e:
+                return self.sendError(f"Could not save file; error: {e}")
             self.send_message(TableParserMessage(status=Status.saved))
         else:
             logging.debug(
