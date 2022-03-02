@@ -11,11 +11,11 @@ from pydantic import BaseModel, Extra, Field
 
 
 class Status(Enum):
-    prepare_upload = 'PREPARE_UPLOAD'
-    upload_success = 'UPLOAD_SUCCESS'
-    saved = 'SAVED'
-    lasers = 'LASERS'
-    error = 'ERROR'
+    prepare_upload = "PREPARE_UPLOAD"
+    upload_success = "UPLOAD_SUCCESS"
+    saved = "SAVED"
+    lasers = "LASERS"
+    error = "ERROR"
 
 
 class File(BaseModel):
@@ -24,9 +24,9 @@ class File(BaseModel):
         allow_population_by_field_name = True
 
     name: str
-    n_slices: float = Field(..., alias='nSlices')
-    access_token: str = Field(..., alias='accessToken')
-    content_type: str = Field(..., alias='contentType')
+    n_slices: float = Field(..., alias="nSlices")
+    access_token: str = Field(..., alias="accessToken")
+    content_type: str = Field(..., alias="contentType")
 
 
 class TableParserMessage(BaseModel):
@@ -35,6 +35,6 @@ class TableParserMessage(BaseModel):
         allow_population_by_field_name = True
 
     status: Status
-    error: Optional[str] = ''
+    error: Optional[str] = ""
     file: Optional[File] = None
-    has_lasers: Optional[str] = Field(None, alias='hasLasers')
+    has_lasers: Optional[str] = Field(None, alias="hasLasers")
