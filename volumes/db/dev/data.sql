@@ -1,9 +1,8 @@
+-- profiles
 create table profiles (
-  id uuid references auth.users not null,
+	id uuid primary key,
   updated_at timestamp with time zone,
-  name text,
-
-  primary key (id)
+  name text
 );
 
 alter table profiles enable row level security;
@@ -19,6 +18,28 @@ create policy "User can insert their own profile"
 create policy "User can update own profile"
   on profiles for update
   using ( auth.uid() = id );
+
+-- copy data to public users table to support prisma
+-- https://github.com/supabase/supabase/issues/1502#issuecomment-836354621
+-- https://supabase.com/docs/guides/auth/managing-user-data#using-triggers
+
+-- inserts a row into public.users
+create function public.handle_new_user() 
+returns trigger 
+language plpgsql 
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id)
+  values (new.id);
+  return new;
+end;
+$$;
+
+-- trigger the function every time a user is created
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
 
 -- Set up Realtime
 begin;
@@ -60,12 +81,10 @@ create policy "Users can upload their own files."
 -- Set up user database
 
 create table base (
-  id uuid not null,
+  id uuid primary key,
   name text,
   original_file_path text,
-  owner uuid references auth.users not null,
-
-  primary key (id)
+  owner uuid references profiles not null
 );
 alter table base enable row level security;
 
