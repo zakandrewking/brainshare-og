@@ -1,3 +1,5 @@
+from .util import increment
+
 import os
 from typing import Optional, Final, Any
 import logging
@@ -70,7 +72,14 @@ class FileData(BaseModel):
 
 
 def upload_to_supabase(file: File, file_data: FileData) -> None:
-    url: str = f"{SUPABASE_STORAGE_URL}/object/{BUCKET_NAME}/{file.name}"
+    # check that file does not exist; fail after 10 tries
+    file_name = file.name  # TODO give each user their own bucket!
+    for a in range(10):
+        url: str = f"{SUPABASE_STORAGE_URL}/object/{BUCKET_NAME}/{file_name}"
+        result = httpx.get(url)
+        if result.status_code != 404:
+            file_name = increment(file_name)
+
     files = {"upload-file": (file.name, io.BytesIO(file_data.data), file.content_type)}
     headers = {
         "apikey": SUPABASE_ANON_KEY,

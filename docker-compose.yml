@@ -177,5 +177,5 @@ services:
 
   task-worker-py:
     container_name: task-worker-py
-    build: ./ task-worker-py
+    build: ./task-worker-py
     restart: unless-stopped

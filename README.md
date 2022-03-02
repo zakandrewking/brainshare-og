@@ -52,3 +52,14 @@ Runs the application at http://localhost:3000
 Supabase console is at http://localhost:4000
 
 For development, you can see emails with inbucket at http://localhost:9000
+
+## REST
+
+Can use ANON_KEY for unauthenticated endpoints (incl. no RLS enabled) or
+SERVICE_KEY for full access (danger!).
+
+```
+http http://localhost:3000/rest/v1/<table-name> \
+  apikey:$TOKEN -A bearer -a $TOKEN \
+  | jless
+```
