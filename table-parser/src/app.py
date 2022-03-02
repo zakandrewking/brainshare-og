@@ -35,7 +35,7 @@ def getEnv(key: str) -> str:
 # supabase
 SUPABASE_STORAGE_URL = getEnv("SUPABASE_STORAGE_URL")
 SUPABASE_ANON_KEY = getEnv("SUPABASE_ANON_KEY")
-BUCKET_NAME = "uploaded_files"
+BUCKET_POSTFIX = "uploaded_files"
 
 
 #         # in parallel to saving, begin generating postgres init sql files
@@ -71,14 +71,18 @@ class FileData(BaseModel):
 #     }
 
 
-def upload_to_supabase(file: File, file_data: FileData) -> None:
-    # check that file does not exist; fail after 10 tries
+def upload_to_supabase(bucket_name: str, file: File, file_data: FileData) -> None:
+    # check that file does not exist;
     file_name = file.name  # TODO give each user their own bucket!
-    for a in range(10):
-        url: str = f"{SUPABASE_STORAGE_URL}/object/{BUCKET_NAME}/{file_name}"
+    for a in range(20):  # fail after 20 tries
+        url: str = f"{SUPABASE_STORAGE_URL}/object/{bucket_name}/{file_name}"
         result = httpx.get(url)
         if result.status_code != 404:
             file_name = increment(file_name)
+        else:
+            break
+    else:
+        raise Exception("Too many tries incrementing file name")
 
     files = {"upload-file": (file.name, io.BytesIO(file_data.data), file.content_type)}
     headers = {
@@ -158,7 +162,8 @@ class MyServerProtocol(WebSocketServerProtocol):
             # self.sendStatus("CREATE_BASE_SUCCESS")
 
             # upload
-            upload_to_supabase(self.file, self.file_data)
+            # const fileName = `${session?.user.id}${Math.random()}.${fileExt}`
+            upload_to_supabase(bucket_name, self.file, self.file_data)
             self.send_message(TableParserMessage(status=Status.saved))
         else:
             logging.debug(
