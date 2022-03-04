@@ -1,1 +1,3 @@
 dramatiq>=1.12.3,<2
+dramatiq-pg 
+psycopg2-binary
