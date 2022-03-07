@@ -179,3 +179,15 @@ services:
     container_name: task-worker-py
     build: ./task-worker-py
     restart: unless-stopped
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.33.4
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:8.4.3
+
+  loki:
+    container_name: loki
+    image: grafana/loki:k87-a677614

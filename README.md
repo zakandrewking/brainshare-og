@@ -2,6 +2,12 @@
 
 why screen share when you can brainshare?
 
+# inspiration & acknowledgment
+
+brainshare is heavily based on [supabase](https://github.com/supabase/supabase) 
+and relies on the open source contributions of probably tens of thousands of 
+developers on hundreds of projects (would be cool to count them up!)
+
 # Known issues
 
 ## Can't click the file upload button in Safari (but drag-drop works)
@@ -24,6 +30,9 @@ cp .env.example .env
 ```
 # Start /rebuild dev
 docker-compose up --build -d
+
+# Initialize database
+# TODO
 
 # Stop
 docker-compose down
