@@ -60,6 +60,8 @@ Runs the application at http://localhost:3000
 
 Supabase console is at http://localhost:4000
 
+Graphiql is at http://localhost:8000 - add headers like `{"apikey": "<token>", "Authorization": "Bearer <token>"}`
+
 For development, you can see emails with inbucket at http://localhost:9000
 
 ## REST
