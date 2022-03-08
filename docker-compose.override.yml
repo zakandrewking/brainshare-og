@@ -1,6 +1,13 @@
+---
 version: "3.8"
 
 services:
+  # ----
+  # Main
+  # ----
+
+  # auth:
+
   db:
     volumes:
       - /var/lib/postgresql/data
@@ -15,27 +22,23 @@ services:
       - ./frontend/tsconfig.json:/app/tsconfig.json
       - ./frontend/yarn.lock:/app/yarn.lock
 
-  graphiql:
-    container_name: graphiql
-    build: ./graphiql
-    ports:
-      - 8000:8000
-
-  mail:
-    container_name: supabase-mail
-    image: inbucket/inbucket:stable
-    ports:
-      - '2500:2500' # SMTP
-      - '9000:9000' # web interface
-      - '1100:1100' # POP3
+  # kong:
 
   meta:
     ports:
       - 5555:8080
 
+  # realtime:
+
+  # rest:
+
   storage:
     volumes:
       - /var/lib/storage
+
+  # -------------
+  # Microservices
+  # -------------
 
   table-parser:
     environment:
@@ -47,3 +50,41 @@ services:
   task-worker-py:
     volumes:
       - ./task-worker-py:/app
+
+  # ----------
+  # Monitoring
+  # ----------
+
+  # grafana:
+
+  # loki:
+
+  # ---------
+  # Debugging
+  # ---------
+
+  # graphiql:
+  #   container_name: graphiql
+  #   build: ./graphiql
+  #   ports:
+  #     - 8000:8000
+
+  mail:
+    container_name: supabase-mail
+    image: inbucket/inbucket:stable
+    ports:
+      - '2500:2500' # SMTP
+      - '9000:9000' # web interface
+      - '1100:1100' # POP3
+
+  studio:
+    container_name: supabase-studio
+    image: supabase/studio:latest
+    restart: unless-stopped
+    ports:
+      - ${STUDIO_PORT}:3000/tcp
+    environment:
+      SUPABASE_URL: ${KONG_URL}
+      STUDIO_PG_META_URL: ${META_URL}
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}

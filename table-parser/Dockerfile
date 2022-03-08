@@ -5,8 +5,8 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
-COPY src /app/src
+COPY table_parser /app/table_parser
 
 EXPOSE 5000
 
-CMD [ "python", "src/app.py" ]
+CMD [ "python", "-m", "table_parser" ]

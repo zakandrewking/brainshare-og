@@ -2,7 +2,42 @@
 version: '3.8'
 
 services:
-  # http://localhost:3000/rest/v1/rpc/graphql ?
+  # ----
+  # Main
+  # ----
+
+  auth:
+    container_name: supabase-auth
+    image: supabase/gotrue:v2.2.12
+    depends_on:
+      - db
+    restart: unless-stopped
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres?search_path=auth
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
+      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: ${JWT_EXPIRY}
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP}
+      GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM}
+      GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL}
+      GOTRUE_SMTP_HOST: ${SMTP_HOST}
+      GOTRUE_SMTP_PORT: ${SMTP_PORT}
+      GOTRUE_SMTP_USER: ${SMTP_USER}
+      GOTRUE_SMTP_PASS: ${SMTP_PASS}
+      GOTRUE_SMTP_SENDER_NAME: ${SMTP_SENDER_NAME}
+      GOTRUE_MAILER_URLPATHS_INVITE: ${SITE_URL}/auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${SITE_URL}/auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_RECOVERY: ${SITE_URL}/auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${SITE_URL}/auth/v1/verify
+      GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
+      GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
+
   db:
     container_name: db
     build: ./db
@@ -15,6 +50,13 @@ services:
     volumes:
       # - ./volumes/db/data:/var/lib/postgresql/data
       - ./volumes/db/init:/docker-entrypoint-initdb.d
+
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    environment:
+      REACT_APP_SUPABASE_URL: ${SITE_URL}
+      REACT_APP_SUPABASE_ANON_KEY: ${ANON_KEY}
 
   kong:
     container_name: kong
@@ -34,82 +76,16 @@ services:
     volumes:
       - ./volumes/api/kong.yml:/var/lib/kong/kong.yml
 
-  frontend:
-    container_name: frontend
-    build: ./frontend
-    environment:
-      REACT_APP_SUPABASE_URL: ${SITE_URL}
-      REACT_APP_SUPABASE_ANON_KEY: ${ANON_KEY}
-
-  studio:
-    container_name: supabase-studio
-    image: supabase/studio:latest
-    restart: unless-stopped
-    ports:
-      - ${STUDIO_PORT}:3000/tcp
-    environment:
-      SUPABASE_URL: ${KONG_URL}
-      STUDIO_PG_META_URL: ${META_URL}
-      SUPABASE_ANON_KEY: ${ANON_KEY}
-      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
-
-  auth:
-    container_name: supabase-auth
-    image: supabase/gotrue:v2.2.12
+  meta:
+    container_name: supabase-meta
+    image: supabase/postgres-meta:v0.29.0
     depends_on:
       - db
     restart: unless-stopped
     environment:
-      GOTRUE_API_HOST: 0.0.0.0
-      GOTRUE_API_PORT: 9999
-
-      GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres?search_path=auth
-
-      GOTRUE_SITE_URL: ${SITE_URL}
-      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
-      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP}
-
-      GOTRUE_JWT_SECRET: ${JWT_SECRET}
-      GOTRUE_JWT_EXP: ${JWT_EXPIRY}
-      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
-
-      GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP}
-      GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM}
-      GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL}
-      GOTRUE_SMTP_HOST: ${SMTP_HOST}
-      GOTRUE_SMTP_PORT: ${SMTP_PORT}
-      GOTRUE_SMTP_USER: ${SMTP_USER}
-      GOTRUE_SMTP_PASS: ${SMTP_PASS}
-      GOTRUE_SMTP_SENDER_NAME: ${SMTP_SENDER_NAME}
-      GOTRUE_MAILER_URLPATHS_INVITE: ${SITE_URL}/auth/v1/verify
-      GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${SITE_URL}/auth/v1/verify
-      GOTRUE_MAILER_URLPATHS_RECOVERY: ${SITE_URL}/auth/v1/verify
-      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${SITE_URL}/auth/v1/verify
-
-      GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
-      GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
-
-  mail:
-    container_name: mail
-    image: inbucket/inbucket
-    ports:
-      - '${SMTP_PORT}:2500' # SMTP
-      - '9000:9000' # web interface
-
-  rest:
-    container_name: rest
-    image: postgrest/postgrest:v9.0.0
-    depends_on:
-      - db
-    restart: unless-stopped
-    environment:
-      PGRST_DB_URI: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
-      PGRST_DB_SCHEMAS: public,storage,graphql
-      PGRST_DB_EXTRA_SEARCH_PATH: public,extensions
-      PGRST_DB_ANON_ROLE: anon
-      PGRST_JWT_SECRET: ${JWT_SECRET}
-      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: db
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
 
   realtime:
     container_name: supabase-realtime
@@ -133,6 +109,20 @@ services:
       TEMPORARY_SLOT: "true"
     command: >
       bash -c "./prod/rel/realtime/bin/realtime eval Realtime.Release.migrate && ./prod/rel/realtime/bin/realtime start"
+
+  rest:
+    container_name: rest
+    image: postgrest/postgrest:v9.0.0
+    depends_on:
+      - db
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql
+      PGRST_DB_EXTRA_SEARCH_PATH: public,extensions
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
 
   storage:
     container_name: supabase-storage
@@ -158,22 +148,16 @@ services:
     volumes:
       - ./volumes/storage:/var/lib/storage
 
-  meta:
-    container_name: supabase-meta
-    image: supabase/postgres-meta:v0.29.0
-    depends_on:
-      - db
-    restart: unless-stopped
-    environment:
-      PG_META_PORT: 8080
-      PG_META_DB_HOST: db
-      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+  # -------------
+  # Microservices
+  # -------------
 
   table-parser:
     container_name: table-parser
     build: ./table-parser
     restart: unless-stopped
     environment:
+      SUPABASE_REST_URL: http://rest:3000
       SUPABASE_STORAGE_URL: http://storage:5000
       SUPABASE_ANON_KEY: ${ANON_KEY}
 
@@ -182,9 +166,9 @@ services:
     build: ./task-worker-py
     restart: unless-stopped
 
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:v2.33.4
+  # ----------
+  # Monitoring
+  # ----------
 
   grafana:
     container_name: grafana
@@ -193,3 +177,7 @@ services:
   loki:
     container_name: loki
     image: grafana/loki:k87-a677614
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.33.4

@@ -4,16 +4,17 @@ import random
 from typing import Optional, Final, Any
 import logging
 import sys
-from flask import session
 from pydantic import BaseModel, Field, Extra
 import pandas as pd  # type: ignore
 import io
 import httpx
 import asyncio
-from autobahn.asyncio.websocket import WebSocketServerFactory, WebSocketServerProtocol
-from supabase import create_client, Client
+from autobahn.asyncio.websocket import (  # type: ignore
+    WebSocketServerFactory,
+    WebSocketServerProtocol,
+)
 
-from schema.table_parser import File, TableParserMessage, Status
+from .schema.table_parser import File, TableParserMessage, Status
 
 # logging
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -35,7 +36,7 @@ def getEnv(key: str) -> str:
 
 
 # supabase
-SUPABASE_URL = getEnv("SUPABASE_URL")
+SUPABASE_REST_URL = getEnv("SUPABASE_REST_URL")
 SUPABASE_STORAGE_URL = getEnv("SUPABASE_STORAGE_URL")
 SUPABASE_ANON_KEY = getEnv("SUPABASE_ANON_KEY")
 BUCKET_NAME = "uploaded_files"
@@ -93,14 +94,14 @@ def upload_file(file: File, file_data: FileData) -> None:
     object_result.raise_for_status()
 
 
-def insert_upload(file: File, file_data: FileData) -> None:
-    """2 insert into table for user "uploads" with foreign key to bucket"""
-    url = f"{SUPABASE_URL}/tables/user_table_upload/"
-    headers = {
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": "Bearer " + file.access_token,
-    }
-    object_result = httpx.post(url, files=files, headers=headers)
+# def insert_upload(file: File, file_data: FileData) -> None:
+#     """2 insert into table for user "uploads" with foreign key to bucket"""
+#     url = f"{SUPABASE_URL}/tables/user_table_upload/"
+#     headers = {
+#         "apikey": SUPABASE_ANON_KEY,
+#         "Authorization": "Bearer " + file.access_token,
+#     }
+#     object_result = httpx.post(url, files=files, headers=headers)
 
 
 # Websockets
@@ -171,7 +172,7 @@ class MyServerProtocol(WebSocketServerProtocol):
             # upload file and insert upload row to track details
             try:
                 upload_file(self.file, self.file_data)
-                insert_upload(self.file, self.file_data)
+                # insert_upload(self.file, self.file_data)
             except Exception as e:
                 return self.sendError(f"Could not save file; error: {e}")
             self.send_message(TableParserMessage(status=Status.saved))
@@ -201,7 +202,7 @@ class MyServerProtocol(WebSocketServerProtocol):
         logging.info("WebSocket connection closed: {0}".format(reason))
 
 
-if __name__ == "__main__":
+def main() -> None:
     logging.info("starting")
     factory = WebSocketServerFactory(f"ws://{HOST}:{PORT}/sock")
     factory.protocol = MyServerProtocol
