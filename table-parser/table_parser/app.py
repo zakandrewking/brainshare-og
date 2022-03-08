@@ -13,8 +13,10 @@ from autobahn.asyncio.websocket import (  # type: ignore
     WebSocketServerFactory,
     WebSocketServerProtocol,
 )
+from uuid import UUID
 
 from .schema.table_parser import File, TableParserMessage, Status
+from .schema.rest_api import UploadedFiles
 
 # logging
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -74,8 +76,12 @@ class FileData(BaseModel):
 #     }
 
 
-def upload_file(file: File, file_data: FileData) -> None:
-    """1 upload data into bucket with random object name"""
+def upload_file(file: File, file_data: FileData) -> str:
+    """1 upload data into bucket with random object name.
+
+    Returns UUID for object.
+
+    """
     file_base, file_ext = file.name.rsplit(".")
     rand = "".join(
         random.choice(string.ascii_uppercase + string.digits) for _ in range(10)
@@ -92,17 +98,18 @@ def upload_file(file: File, file_data: FileData) -> None:
     object_result = httpx.post(url, files=files, headers=headers)
     logging.debug(f"upload result: {object_result.text}")
     object_result.raise_for_status()
+    return UUID(object_result.data.object_id)
 
 
-def insert_upload(file: File, file_data: FileData) -> None:
+def insert_upload(file: File, object_id: UUID) -> None:
     """2 insert into table for user 'uploads' with foreign key to bucket"""
     url = f"{SUPABASE_REST_URL}/tables/user_table_upload/"
     headers = {
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": "Bearer " + file.access_token,
     }
-    data = {}  # TODO user openAPI spec or graphQL spec here
-    object_result = httpx.post(url, data=data, headers=headers)
+    data = UploadedFiles(file_name=file.name, object_id=object_id)
+    object_result = httpx.post(url, json=data, headers=headers)
     object_result.raise_for_status()
 
 
@@ -173,8 +180,8 @@ class MyServerProtocol(WebSocketServerProtocol):
 
             # upload file and insert upload row to track details
             try:
-                upload_file(self.file, self.file_data)
-                # insert_upload(self.file, self.file_data)
+                object_id = upload_file(self.file, self.file_data)
+                insert_upload(self.file, object_id)
             except Exception as e:
                 return self.sendError(f"Could not save file; error: {e}")
             self.send_message(TableParserMessage(status=Status.saved))
