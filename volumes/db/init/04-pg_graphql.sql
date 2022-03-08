@@ -1,7 +1,7 @@
 -- From:
 -- https://github.com/supabase/pg_graphql/blob/fe024e8a5e94e00547ecd2d6e65a6f839f4f0d3c/dockerfiles/db/setup.sql
 
-create role anon;
+-- create role anon; -- already exists
 create extension if not exists "uuid-ossp";
 create extension if not exists pg_graphql cascade;
 
