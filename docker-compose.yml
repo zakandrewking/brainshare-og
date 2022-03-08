@@ -2,6 +2,19 @@
 version: '3.8'
 
 services:
+  db:
+    container_name: db
+    image: supabase/postgres:14.1.0
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    restart: unless-stopped
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # - ./volumes/db/data:/var/lib/postgresql/data
+      - ./volumes/db/init:/docker-entrypoint-initdb.d
+
   kong:
     container_name: kong
     image: kong:2.1
@@ -153,19 +166,6 @@ services:
       PG_META_PORT: 8080
       PG_META_DB_HOST: db
       PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
-
-  db:
-    container_name: supabase-db
-    image: supabase/postgres:14.1.0
-    command: postgres -c config_file=/etc/postgresql/postgresql.conf
-    restart: unless-stopped
-    ports:
-      - ${POSTGRES_PORT}:5432
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      # - ./volumes/db/data:/var/lib/postgresql/data
-      - ./volumes/db/init:/docker-entrypoint-initdb.d
 
   table-parser:
     container_name: table-parser

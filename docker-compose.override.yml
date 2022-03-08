@@ -1,6 +1,10 @@
 version: "3.8"
 
 services:
+  db:
+    volumes:
+      - /var/lib/postgresql/data
+
   frontend:
     volumes:
       - ./frontend/public:/app/public
@@ -21,10 +25,7 @@ services:
   meta:
     ports:
       - 5555:8080
-  db:
-    volumes:
-      - /var/lib/postgresql/data
-      - ./volumes/db/dev/data.sql:/docker-entrypoint-initdb.d/data.sql
+
   storage:
     volumes:
       - /var/lib/storage
