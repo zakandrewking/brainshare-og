@@ -78,7 +78,7 @@ def upload_file(file: File, file_data: FileData) -> None:
     """1 upload data into bucket with random object name"""
     file_base, file_ext = file.name.rsplit(".")
     rand = "".join(
-        random.choice(string.ascii_lowercase + string.digits) for _ in range(10)
+        random.choice(string.ascii_uppercase + string.digits) for _ in range(10)
     )
     object_name = f"{file_base[:10]}.{rand}.{file_ext}"
     url: str = f"{SUPABASE_STORAGE_URL}/object/{BUCKET_NAME}/{object_name}"
@@ -94,14 +94,16 @@ def upload_file(file: File, file_data: FileData) -> None:
     object_result.raise_for_status()
 
 
-# def insert_upload(file: File, file_data: FileData) -> None:
-#     """2 insert into table for user "uploads" with foreign key to bucket"""
-#     url = f"{SUPABASE_URL}/tables/user_table_upload/"
-#     headers = {
-#         "apikey": SUPABASE_ANON_KEY,
-#         "Authorization": "Bearer " + file.access_token,
-#     }
-#     object_result = httpx.post(url, files=files, headers=headers)
+def insert_upload(file: File, file_data: FileData) -> None:
+    """2 insert into table for user 'uploads' with foreign key to bucket"""
+    url = f"{SUPABASE_REST_URL}/tables/user_table_upload/"
+    headers = {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + file.access_token,
+    }
+    data = {}  # TODO user openAPI spec or graphQL spec here
+    object_result = httpx.post(url, data=data, headers=headers)
+    object_result.raise_for_status()
 
 
 # Websockets

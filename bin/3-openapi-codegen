@@ -1,0 +1,20 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+echo
+echo "table-parser"
+cd "../table-parser"
+
+# get secrets
+source ../.env
+
+# get openapi file
+curl -H "apikey: ${ANON_KEY}" -H "Authorization: Bearer ${ANON_KEY}" http://localhost:3000/rest/v1/ > openapi.json
+
+# TODO switch to https://github.com/koxudaxi/datamodel-code-generator/
+python -m datamodel_code_generator --use-default --snake-case-field --allow-population-by-field-name \
+  --input openapi.json --output table_parser/schema/rest_api.py
+
+# clean up
+rm openapi.json

@@ -6,27 +6,20 @@ create policy "Users can select their own files."
     on storage.objects for select
     using (bucket_id = 'uploaded_files' AND auth.uid() = owner);
 
-create policy "Users can upload their own files."
-    on storage.objects for insert
+create policy "Users can upload their own files." on storage.objects for insert
     with check (bucket_id = 'uploaded_files' AND auth.role() = 'authenticated');
 
+-- Track file upload metadata
 create table uploaded_files
 (
     "id"        UUID NOT NULL DEFAULT extensions.uuid_generate_v4(),
     "file_name" text,
     "owner"     uuid,
-    "object_id" text,
+    "object_id" uuid,
     CONSTRAINT "objects_owner_fkey" FOREIGN KEY ("owner") REFERENCES "auth"."users" ("id"),
     CONSTRAINT "objects_objectId_fkey" FOREIGN KEY ("object_id") REFERENCES "storage"."objects" ("id")
 );
-
 alter table uploaded_files
     enable row level security;
-
-create policy "Users can select their own uploads"
-    on uploaded_files for select
-    using (auth.uid() = owner);
-
-create policy "Users can insert their own uploads"
-    on uploaded_files for insert
-    with check (auth.uid() = owner);
+create policy "Users can read their own uploads" on uploaded_files for select using (auth.uid() = owner);
+create policy "Users can create their own uploads" on uploaded_files for insert with check (auth.uid() = owner);

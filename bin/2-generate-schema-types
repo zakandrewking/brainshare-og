@@ -9,4 +9,4 @@ echo
 echo "table-parser"
 cd "../table-parser"
 ls ../schema | xargs -I {} basename {} .json | \
-  xargs -t -I {} bash -c 'python -m datamodel_code_generator  --use-default --snake-case-field --allow-population-by-field-name --input ../schema/{}.json --output src/schema/$(echo "{}" | sed "s/-/_/g").py'
+  xargs -t -I {} bash -c 'python -m datamodel_code_generator  --use-default --snake-case-field --allow-population-by-field-name --input ../schema/{}.json --output table_parser/schema/$(echo "{}" | sed "s/-/_/g").py'
