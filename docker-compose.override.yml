@@ -11,8 +11,12 @@ services:
   db:
     volumes:
       - /var/lib/postgresql/data
+      - ./volumes/db/dev/dev-data.sql:/docker-entrypoint-initdb.d/dev-data.sql
 
   frontend:
+    environment:
+      REACT_APP_TEST_USER_EMAIL: test@test.com
+      REACT_APP_TEST_USER_PASSWORD: password
     volumes:
       - ./frontend/public:/app/public
       - ./frontend/src:/app/src

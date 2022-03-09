@@ -1,0 +1,17 @@
+-- create an example user and log them in
+
+-- insert into auth.users (instance_id, id, aud, role, email, encrypted_password, invited_at,
+--                         confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--                         email_change, email_change_sent_at, last_sign_in_at, raw_app_meta_data,
+--                         raw_user_meta_data, is_super_admin, created_at, updated_at,
+--                         confirmed_at)
+-- values ('00000000-0000-0000-0000-000000000000', 'f8134877-c5a1-43bb-9f1e-1549f63256a7', '', 'authenticated',
+--         'test@test.com', '$2a$10$nFhoN2Wi3qs.k7iHnxtBFeZiyI9HfjXBjYuaq22F3/eIkUPLxTJkW',
+--         null, '', null, '', null, '', null,
+--         '2022-03-09 23:12:56.332413 +00:00', '{
+--     "provider": "email",
+--     "providers": [
+--       "email"
+--     ]
+--   }', '{}', false, '2022-03-09 23:12:56.312476 +00:00', '2022-03-09 23:12:56.312476 +00:00',
+--         '2022-03-09 23:12:56.325152 +00:00');

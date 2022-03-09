@@ -13,6 +13,27 @@ import Account from './components/Account'
 import DatabaseList from './components/DatabaseList'
 import DatabaseView from './components/DatabaseView'
 
+// in development, auto-log-in
+if (process.env.NODE_ENV === 'development') {
+  const email = process.env.REACT_APP_TEST_USER_EMAIL
+  const password = process.env.REACT_APP_TEST_USER_PASSWORD
+  const { supabase } = require('./api/supabaseClient')
+  const session = supabase.auth.session()
+  console.log('Session', session)
+  if (!session) {
+    supabase.auth
+      .signUp({
+        email: 'test@test.com',
+        password: 'password'
+      })
+      .then(() => {
+        supabase.auth.signIn({ email, password }).then((res: any) => {
+          console.log('Auto log in result', res)
+        })
+      })
+  }
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>

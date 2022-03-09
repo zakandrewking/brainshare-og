@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/volumes/db/dev/dev-data.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/volumes/db/init/00-initial-schema.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/volumes/db/init/01-auth-schema.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/volumes/db/init/02-storage-schema.sql" dialect="PostgreSQL" />
