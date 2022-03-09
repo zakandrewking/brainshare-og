@@ -8,6 +8,9 @@ brainshare is heavily based on [supabase](https://github.com/supabase/supabase)
 and relies on the open source contributions of probably tens of thousands of 
 developers on hundreds of projects (would be cool to count them up!)
 
+- https://github.com/supabase/supabase 
+- https://github.com/themesberg/flowbite
+
 # Known issues
 
 ## Can't click the file upload button in Safari (but drag-drop works)

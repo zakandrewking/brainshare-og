@@ -61,7 +61,7 @@ function DebugBar () {
   return (
     <div
       id="debug-toolbar"
-      className="sm:rounded-lg px-6 pt-6 pb-6 bg-white dark:bg-slate-800 shadow-xl ring-1 ring-gray-900/5"
+      className="sm:rounded-lg sm:m-4 px-6 pt-6 pb-6 bg-white dark:bg-slate-800 shadow-xl ring-1 ring-gray-900/5"
     >
       <h1>Debug</h1>
       <DarkMode></DarkMode>

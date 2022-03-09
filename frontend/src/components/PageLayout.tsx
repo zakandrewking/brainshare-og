@@ -10,11 +10,10 @@ function PageLayout () {
   return (
     <MessageBoxProvider>
       <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
-        <Navigation />
-        <div className="container sm:px-6 space-y-16 pb-6">
+        <Navigation>
           <Outlet />
-          <DebugBar />
-        </div>
+        </Navigation>
+        <DebugBar />
       </div>
     </MessageBoxProvider>
   )
