@@ -95,22 +95,29 @@ def upload_file(file: File, file_data: FileData) -> str:
         "cache-control": "3600",
         "x-upsert": "false",
     }
-    object_result = httpx.post(url, files=files, headers=headers)
-    logging.debug(f"upload result: {object_result.text}")
-    object_result.raise_for_status()
-    return UUID(object_result.data.object_id)
+    result = httpx.post(url, files=files, headers=headers)
+    logging.debug(f"upload result: {result.text}")
+    result.raise_for_status()
+    object_key = result.json()["Key"]  # e.g. 'uploaded_files/Book1.56884IBTXK.xlsx'
+    return object_key
 
 
-def insert_upload(file: File, object_id: UUID) -> None:
+def insert_upload(file: File, object_key: str) -> None:
     """2 insert into table for user 'uploads' with foreign key to bucket"""
-    url = f"{SUPABASE_REST_URL}/tables/user_table_upload/"
-    headers = {
+    url = f"{SUPABASE_REST_URL}/uploaded_files"
+    headers = {  # TODO make a function
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": "Bearer " + file.access_token,
     }
-    data = UploadedFiles(file_name=file.name, object_id=object_id)
-    object_result = httpx.post(url, json=data, headers=headers)
-    object_result.raise_for_status()
+    data = UploadedFiles(
+        file_name=file.name, owner=UUID(file.user_id), object_key=object_key
+    ).json(
+        exclude_none=True
+    )  # TODO is this the way to do it?
+    logging.debug(url, data, headers)
+    result = httpx.post(url, content=data, headers=headers)
+    logging.debug(f"post result: {result.text}")
+    result.raise_for_status()
 
 
 # Websockets
@@ -125,6 +132,9 @@ class MyServerProtocol(WebSocketServerProtocol):
         self.sendMessage(
             message.json(by_alias=True, ensure_ascii=False).encode("utf8"), False
         )
+
+    def send_error(self, error: str) -> None:
+        self.send_message(TableParserMessage(status=Status.error, error=error))
 
     def on_text_message(self, payload: bytes) -> None:
         message = TableParserMessage.parse_raw(payload.decode("utf8"))
@@ -149,7 +159,7 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     def on_binary_message(self, payload: bytes) -> None:
         if not self.file or not self.file_data:
-            return self.sendError("Not ready for file data")
+            return self.send_error("Not ready for file data")
 
         # some immutables
         current_slice: Final = self.file_data.current_slice
@@ -159,7 +169,7 @@ class MyServerProtocol(WebSocketServerProtocol):
         # set the data
         if current_slice + 1 > n_slices:
             self.file = None
-            return self.sendError("Mismatch in file parts. Resetting")
+            return self.send_error("Mismatch in file parts. Resetting")
         self.file_data.data += payload
 
         if current_slice + 1 == n_slices:
@@ -180,10 +190,11 @@ class MyServerProtocol(WebSocketServerProtocol):
 
             # upload file and insert upload row to track details
             try:
-                object_id = upload_file(self.file, self.file_data)
-                insert_upload(self.file, object_id)
+                object_key = upload_file(self.file, self.file_data)
+                insert_upload(self.file, object_key)
             except Exception as e:
-                return self.sendError(f"Could not save file; error: {e}")
+                self.send_error(f"Could not save file; error: {e}")
+                raise e
             self.send_message(TableParserMessage(status=Status.saved))
         else:
             logging.debug(

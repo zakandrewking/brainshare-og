@@ -44,6 +44,10 @@ services:
     environment:
       DEBUG: 'true'
       HTTPX_LOG_LEVEL: debug
+    # # For interactive debugging
+    # command: 'python -m pdb -c continue -m table_parser'
+    # stdin_open: true
+    # tty: true
     volumes:
       - ./table-parser:/app
 

@@ -28,11 +28,15 @@ cp .env.example .env
 ## Commands
 
 ```
-# Start /rebuild dev
+# Start
+docker-compose up -d
+
+# Build and start
 docker-compose up --build -d
 
-# Initialize database
-# TODO
+# Rebuild just database
+docker-compose down -v && docker-compose up -d db && docker-compose logs -f db
+# follow with docker-compose up
 
 # Stop
 docker-compose down

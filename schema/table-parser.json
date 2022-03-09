@@ -28,6 +28,9 @@
         "accessToken": {
           "type": "string"
         },
+        "userId": {
+          "type": "string"
+        },
         "contentType": {
           "type": "string"
         }
@@ -37,6 +40,7 @@
         "name",
         "nSlices",
         "accessToken",
+        "userId",
         "contentType"
       ]
     },

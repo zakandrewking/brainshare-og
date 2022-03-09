@@ -65,11 +65,15 @@ function MyDropzone ({ session }: { session: Session }) {
       throw Error('Needs exactly one file')
     }
     const { nSlices, nextSlice } = sliceFile(acceptedFiles[0])
+    if (!session.user) {
+      throw Error('Missing session.user')
+    }
     const message: TableParserMessage = {
       file: {
         name: file.name,
         nSlices,
         accessToken: session.access_token,
+        userId: session.user.id,
         contentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       },
@@ -158,9 +162,6 @@ function MyDropzone ({ session }: { session: Session }) {
 
 function Home () {
   const session = useContext(UserSessionContext)
-  useEffect(() => {
-    console.log(session)
-  })
   return (
     <Body>
       {session

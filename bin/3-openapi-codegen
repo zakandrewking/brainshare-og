@@ -13,8 +13,9 @@ source ../.env
 curl -H "apikey: ${ANON_KEY}" -H "Authorization: Bearer ${ANON_KEY}" http://localhost:3000/rest/v1/ > openapi.json
 
 # TODO switch to https://github.com/koxudaxi/datamodel-code-generator/
-python -m datamodel_code_generator --use-default --snake-case-field --allow-population-by-field-name \
-  --input openapi.json --output table_parser/schema/rest_api.py
+# python -m datamodel_code_generator --force-optional --snake-case-field --allow-population-by-field-name \
+#   --input openapi.json --output table_parser/schema/rest_api.py
+# TODO not working. both --force-optional and --use-defaults are an issue for auto-generated UUID columns
 
 # clean up
 rm openapi.json
