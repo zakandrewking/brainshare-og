@@ -1,13 +1,15 @@
 import React, { useState, useContext } from 'react'
 import { useDropzone } from 'react-dropzone'
 import useWebSocket from 'react-use-websocket'
+import { Link } from 'react-router-dom'
+import { Session } from '@supabase/supabase-js'
+
 import { Body, Button } from './Components'
 import { MessageBoxContext } from '../context/MessageBox'
 import { sliceFile } from '../util/files'
 import { UserSessionContext } from '../context/UserSession'
-import { Link } from 'react-router-dom'
-import { Session } from '@supabase/supabase-js'
 import { TableParserMessage } from '../schema/table-parser'
+import { onLasers, setSendLasers } from '../debug/lasers'
 
 import './Home.css'
 
@@ -16,25 +18,27 @@ function MyDropzone ({ session }: { session: Session }) {
   const [progress, setProgress] = useState(0)
   const setMessage = useContext(MessageBoxContext)
 
-  const [buttonLabel, setButtonLabel] = useState('lasers')
-
   const { sendMessage, sendJsonMessage } = useWebSocket(
     'ws://' + window.location.host + '/api/table-parser/sock',
     {
       onOpen: () => {
         console.log('websocket open')
         setStatus('Connected')
-        // TODO check for current file and update UI
+
+        // for debugging
+        setSendLasers((m) => {
+          const message: TableParserMessage = {
+            status: 'LASERS',
+            hasLasers: m,
+            error: ''
+          }
+          sendJsonMessage(message)
+        })
       },
       onMessage: (event) => {
         console.debug('websocket message received', event)
         const message: TableParserMessage = JSON.parse(event.data)
         console.debug(message)
-
-        // for testing
-        if (message.hasLasers) {
-          setButtonLabel(message.hasLasers)
-        }
 
         if (message.status === 'UPLOAD_SUCCESS') {
           setStatus('Uploaded')
@@ -44,11 +48,14 @@ function MyDropzone ({ session }: { session: Session }) {
           console.warn(message.error)
           setStatus('Failed')
           setProgress(0)
+        } else if (message.status === 'LASERS' && message.hasLasers) {
+          onLasers(message.hasLasers) // debugging
         }
       },
       onClose: () => {
         console.log('websocket closed')
         setStatus('Disconnected')
+        setSendLasers(() => console.log('Websocket closed')) // for debugging
       },
       shouldReconnect: (closeEvent) => true
     }
@@ -144,18 +151,6 @@ function MyDropzone ({ session }: { session: Session }) {
       </div>
       {acceptedFileItems}
       {fileRejectionItems}
-      <Button
-        onClick={() => {
-          const message: TableParserMessage = {
-            status: 'LASERS',
-            hasLasers: buttonLabel,
-            error: ''
-          }
-          sendJsonMessage(message)
-        }}
-      >
-        {buttonLabel}
-      </Button>
     </div>
   )
 }

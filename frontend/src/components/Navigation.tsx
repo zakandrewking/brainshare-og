@@ -1,6 +1,14 @@
 import React, { useContext, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FaAddressBook, FaHamburger } from 'react-icons/fa'
+import {
+  FaAddressBook,
+  FaHamburger,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaTimes,
+  FaUpload,
+  FaUserAstronaut
+} from 'react-icons/fa'
 
 import { UserSessionContext } from '../context/UserSession'
 import { logOut } from '../api/auth'
@@ -27,7 +35,8 @@ const NavButton = ({
   children: React.ReactNode
 }) => (
   <Link to={to} onClick={onClick}>
-    <li className="flex items-center p-2 text-base font-normal text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+    {/* TODO put these click effects in one place */}
+    <li className="flex items-center p-2 text-base font-normal duration-150 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 active:hover:bg-slate-200 active:dark:hover:bg-slate-700">
       {icon}
       <span className="flex-1 ml-3 whitespace-nowrap">{children}</span>
       {/* tag examples: */}
@@ -58,7 +67,7 @@ export default function Navigation ({
           className="flex flex-col items-center md:hidden p-3 duration-150 text-slate-800 dark:text-slate-200 hover:text-slate-700 hover:dark:text-slate-300 active:text-slate-600 active:dark:text-slate-400"
           onClick={() => setOpen(!open)}
         >
-          <FaHamburger />
+          {open ? <FaTimes /> : <FaHamburger />}
           <span className="text-xs">MENU</span>
         </button>
         <Logo />
@@ -83,20 +92,27 @@ export default function Navigation ({
             {session
               ? (
               <React.Fragment>
-                <NavButton to="/uploads">Uploads</NavButton>
-                <NavButton to="/account">My Account</NavButton>
+                <NavButton to="/uploads" icon={<FaUpload />}>
+                  Uploads
+                </NavButton>
+                <NavButton to="/account" icon={<FaUserAstronaut />}>
+                  My Account
+                </NavButton>
                 <NavButton
                   onClick={async () => {
                     await logOut()
                     navigate('/')
                   }}
+                  icon={<FaSignOutAlt />}
                 >
                   Log Out
                 </NavButton>
               </React.Fragment>
                 )
               : (
-              <NavButton to="/log-in">Log In</NavButton>
+              <NavButton to="/log-in" icon={<FaSignInAlt />}>
+                Log In
+              </NavButton>
                 )}
           </ul>
         </aside>

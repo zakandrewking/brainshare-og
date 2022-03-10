@@ -4,6 +4,9 @@
 
 import React, { useState, useEffect } from 'react'
 
+import { Button } from '../components/Components'
+import { setOnLasers, sendLasers } from './lasers'
+
 /**
  * Toggle dark mode on/off/auto
  */
@@ -57,6 +60,12 @@ function DarkMode () {
   )
 }
 
+function Lasers () {
+  const [lasers, setLasers] = useState('lasers')
+  setOnLasers((m: string) => setLasers(m))
+  return <Button onClick={() => sendLasers(lasers)}>{lasers}</Button>
+}
+
 function DebugBar () {
   return (
     <div
@@ -64,7 +73,10 @@ function DebugBar () {
       className="sm:rounded-lg sm:m-4 px-6 pt-6 pb-6 bg-white dark:bg-slate-800 shadow-xl ring-1 ring-gray-900/5"
     >
       <h1>Debug</h1>
-      <DarkMode></DarkMode>
+      <div className="flex flex-col items-start gap-3">
+        <DarkMode />
+        <Lasers />
+      </div>
     </div>
   )
 }
