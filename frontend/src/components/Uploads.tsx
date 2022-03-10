@@ -1,22 +1,33 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import useSwr from 'swr'
+
+import { definitions } from '../schema/rest-api'
 import supabase from '../api/supabaseClient'
 
-interface Upload {
-  key: string
-}
-
 export default function Uploads () {
-  const [uploads, setUploads] = useState<Upload[]>([])
-  useEffect(() => {
-    const get = async () => {
-      const result = await supabase.from('file_uploads').first(10).get()
+  const [table, page, limit] = ['uploaded_files', 0, 10]
+  const [from, to] = [page * limit, (page + 1) * limit - 1]
+  const { data: uploadedFiles, error } = useSwr(
+    `${table}?from=${from}&to=${to}`,
+    async () => {
+      const result = await supabase
+        .from<definitions['uploaded_files']>(table)
+        .select()
+        .range(from, to)
+      if (result.error) throw result.error
+      return result.data
     }
-    get()
-  })
+  )
+  // TODO clean up loading view, error message
+  // TODO does this effect happen on each route event?
+  if (error) return <span>error</span>
+  if (!uploadedFiles) return <span>loading</span>
   return (
     <ul>
-      {uploads.map((upload) => (
-        <li key={upload.key}>{upload}</li>
+      {uploadedFiles.map((uploadedFile) => (
+        <li key={uploadedFile.id}>
+          {uploadedFile.id} {uploadedFile.file_name}
+        </li>
       ))}
     </ul>
   )

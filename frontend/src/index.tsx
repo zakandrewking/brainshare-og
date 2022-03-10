@@ -18,7 +18,7 @@ import DatabaseView from './components/DatabaseView'
 if (process.env.NODE_ENV === 'development') {
   const email = process.env.REACT_APP_TEST_USER_EMAIL
   const password = process.env.REACT_APP_TEST_USER_PASSWORD
-  const { supabase } = require('./api/supabaseClient')
+  const supabase = require('./api/supabaseClient').default
   const session = supabase.auth.session()
   console.log('Session', session)
   if (!session) {

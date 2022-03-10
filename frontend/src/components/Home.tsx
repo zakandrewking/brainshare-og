@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext } from 'react'
 import { useDropzone } from 'react-dropzone'
 import useWebSocket from 'react-use-websocket'
 import { Body, Button } from './Components'

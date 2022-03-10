@@ -83,6 +83,7 @@ export default function Navigation ({
             {session
               ? (
               <React.Fragment>
+                <NavButton to="/uploads">Uploads</NavButton>
                 <NavButton to="/account">My Account</NavButton>
                 <NavButton
                   onClick={async () => {

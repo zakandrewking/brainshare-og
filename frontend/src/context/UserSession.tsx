@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { supabase } from '../api/supabaseClient'
+import supabase from '../api/supabaseClient'
 import { Session } from '@supabase/supabase-js'
 
 const UserSessionContext = React.createContext<Session | null>(null)

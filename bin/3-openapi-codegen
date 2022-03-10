@@ -2,9 +2,7 @@
 
 cd "$(dirname "$0")"
 
-echo
-echo "table-parser"
-cd "../table-parser"
+echo 'getting openapi spec'
 
 # get secrets
 source ../.env
@@ -12,9 +10,19 @@ source ../.env
 # get openapi file
 curl -H "apikey: ${ANON_KEY}" -H "Authorization: Bearer ${ANON_KEY}" http://localhost:3000/rest/v1/ > openapi.json
 
+echo
+echo "frontend"
+cd "../frontend"
+
+$(yarn bin)/openapi-typescript ../bin/openapi.json --output src/schema/rest-api.d.ts
+
+echo
+echo "table-parser"
+cd "../table-parser"
+
 # TODO switch to https://github.com/koxudaxi/datamodel-code-generator/
 python -m datamodel_code_generator --use-default --snake-case-field --allow-population-by-field-name \
-  --input openapi.json --output table_parser/schema/rest_api.py
+  --input ../bin/openapi.json --output table_parser/schema/rest_api.py
 
 # To deal with this bug https://github.com/PostgREST/postgrest/issues/1653
 # and the fact that defaults are always used by datamodel_code_generator,
@@ -22,4 +30,5 @@ python -m datamodel_code_generator --use-default --snake-case-field --allow-popu
 sed -i '' -e '/extensions.uuid_generate_v4()/d' table_parser/schema/rest_api.py
 
 # clean up
+cd ../bin
 rm openapi.json

@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient'
+import supabase from './supabaseClient'
 
 // TODO generic function to handle errors
 export async function logIn (email: string): Promise<string | null> {

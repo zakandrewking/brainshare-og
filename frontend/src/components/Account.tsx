@@ -3,7 +3,7 @@ import { get } from 'lodash'
 import { useNavigate } from 'react-router-dom'
 import { BeatLoader } from 'react-spinners'
 
-import { supabase } from '../api/supabaseClient'
+import supabase from '../api/supabaseClient'
 import { UserSessionContext } from '../context/UserSession'
 import { MessageBoxContext } from '../context/MessageBox'
 import { Button, Body } from './Components'
@@ -39,33 +39,34 @@ export default function Account () {
     return { error: null }
   }
 
-  const getUserData = async () => {
-    const user = supabase.auth.user()
-
-    if (user === null) {
-      console.warn('No user')
-      return navigate('/log-in')
-    }
-
-    const { data, error, status } = await supabase
-      .from('profiles')
-      .select('name')
-      .eq('id', user.id)
-      .single()
-    // If profile does not exist yet, then lazy create it!
-    if (status === 406) {
-      const { error } = await saveProfile()
-      if (error) setMessage(error)
-      // TODO clean up this mess
-    } else if (error || !data.name) {
-      console.warn(status, error, data)
-      setMessage(String(error))
-    } else {
-      setName(data.name)
-    }
-  }
-
   useEffect(() => {
+    // TODO switch to using SWR; see Uploads.tsx
+    const getUserData = async () => {
+      const user = supabase.auth.user()
+
+      if (user === null) {
+        console.warn('No user')
+        return navigate('/log-in')
+      }
+
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .single()
+      // If profile does not exist yet, then lazy create it!
+      if (status === 406) {
+        const { error } = await saveProfile()
+        if (error) setMessage(error)
+        // TODO clean up this mess
+      } else if (error || !data.name) {
+        console.warn(status, error, data)
+        setMessage(String(error))
+      } else {
+        setName(data.name)
+      }
+    }
+
     getUserData()
   }, [session])
 

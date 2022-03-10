@@ -10,4 +10,5 @@ if (supabaseAnonKey === undefined || supabaseAnonKey === '') {
   throw Error('Environment variable REACT_APP_SUPABASE_ANON_KEY is not defined')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export default supabase
