@@ -55,7 +55,7 @@ export default function Navigation ({
       <div className="flex flex-row items-center">
         {/* Responsive Nav */}
         <button
-          className="flex flex-col items-center md:hidden p-3 hover:text-gray-600 hover:dark:text-gray-300"
+          className="flex flex-col items-center md:hidden p-3 duration-150 text-slate-800 dark:text-slate-200 hover:text-slate-700 hover:dark:text-slate-300 active:text-slate-600 active:dark:text-slate-400"
           onClick={() => setOpen(!open)}
         >
           <FaHamburger />
