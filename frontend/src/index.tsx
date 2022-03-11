@@ -11,6 +11,7 @@ import PageLayout from './components/PageLayout'
 import LogIn from './components/LogIn'
 import Account from './components/Account'
 import Uploads from './components/Uploads'
+import Upload from './components/Upload'
 import DatabaseList from './components/DatabaseList'
 import DatabaseView from './components/DatabaseView'
 
@@ -44,7 +45,8 @@ ReactDOM.render(
             <Route path="/" element={<Home />} />
             <Route path="/log-in" element={<LogIn />} />
             <Route path="/account" element={<Account />} />
-            <Route path="uploads" element={<Uploads />} />
+            <Route path="/uploads" element={<Uploads />} />
+            <Route path="/uploads/:uploadId" element={<Upload />} />
             <Route path="/database" element={<DatabaseList />} />
             <Route path="/database/:databaseId" element={<DatabaseView />} />
             <Route path="*" element={<p>Nothing here!</p>} />

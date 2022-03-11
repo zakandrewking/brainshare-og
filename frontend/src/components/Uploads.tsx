@@ -1,5 +1,6 @@
 import React from 'react'
 import useSwr from 'swr'
+import { Link } from 'react-router-dom'
 
 import { definitions } from '../schema/rest-api'
 import supabase from '../api/supabaseClient'
@@ -23,10 +24,15 @@ export default function Uploads () {
   if (error) return <span>error</span>
   if (!uploadedFiles) return <span>loading</span>
   return (
-    <ul>
+    <ul className="flex flex-col">
       {uploadedFiles.map((uploadedFile) => (
-        <li key={uploadedFile.id}>
-          {uploadedFile.id} {uploadedFile.file_name}
+        <li
+          className="m-3 p-3 w-full bg-green-200 rounded-lg"
+          key={uploadedFile.id}
+        >
+          <Link to={`./${uploadedFile.id}`}>
+            {uploadedFile.id} {uploadedFile.file_name}
+          </Link>
         </li>
       ))}
     </ul>
