@@ -28,6 +28,7 @@ python -m datamodel_code_generator --use-default --snake-case-field --allow-popu
 # and the fact that defaults are always used by datamodel_code_generator,
 # drop auto-generated fields from the model completely.
 sed -i '' -e '/extensions.uuid_generate_v4()/d' table_parser/schema/rest_api.py
+sed -i '' -e '/now()/d' table_parser/schema/rest_api.py
 
 # clean up
 cd ../bin

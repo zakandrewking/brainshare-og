@@ -87,7 +87,7 @@ export default function Navigation ({
         {/* Menu based on https://github.com/themesberg/flowbite/blob/f3d8cb6f0fc9678d060196f0a542688c24b9159e/content/components/sidebar.md */}
         <nav
           className={
-            'w-screen md:w-48 border-b md:border-b-0 md:border-r mb-2 md:mb-0 md:mr-2 ' +
+            'w-screen md:w-48 border-b md:border-b-0 md:border-r shadow-lg md:shadow-none ' +
             'border-slate-200 dark:border-slate-800 ' +
             `flex-col gap-2 md:flex ${open ? '' : 'hidden'}`
           }
@@ -131,7 +131,7 @@ export default function Navigation ({
         </nav>
 
         {/* Content */}
-        <main className="grow">{children}</main>
+        <main className="grow pt-2 md:pt-2 md:px-2">{children}</main>
       </div>
     </div>
   )

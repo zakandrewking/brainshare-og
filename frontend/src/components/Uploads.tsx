@@ -26,15 +26,20 @@ export default function Uploads () {
   if (!uploadedFiles) return <span>loading</span>
   return (
     <div className="flex flex-col" role="list">
+      <div className="p-3">
+        <div className="grow-1 pl-9 font-bold">File name</div>
+      </div>
       {uploadedFiles.map((uploadedFile) => (
         <Link
           to={`./${uploadedFile.id}`}
-          className="m-3 p-3 bg-emerald-100 hover:bg-emerald-200 active:bg-emerald-300 dark:bg-emerald-800 rounded-lg flex flex-row items-center gap-3"
+          className="p-3 border-t 'border-slate-200 dark:border-slate-800  hover:bg-slate-200 active:bg-slate-300 hover:dark:bg-slate-800 active:dark:bg-slate-700 flex flex-row items-center"
           key={uploadedFile.id}
           role="listitem"
         >
-          <FaFileExcel />
-          {uploadedFile.file_name}
+          <div className="w-9">
+            <FaFileExcel />
+          </div>
+          <span>{uploadedFile.file_name}</span>
         </Link>
       ))}
     </div>

@@ -20,6 +20,8 @@ export interface paths {
           file_name?: parameters["rowFilter.uploaded_files.file_name"];
           owner?: parameters["rowFilter.uploaded_files.owner"];
           object_key?: parameters["rowFilter.uploaded_files.object_key"];
+          created_at?: parameters["rowFilter.uploaded_files.created_at"];
+          updated_at?: parameters["rowFilter.uploaded_files.updated_at"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -74,6 +76,8 @@ export interface paths {
           file_name?: parameters["rowFilter.uploaded_files.file_name"];
           owner?: parameters["rowFilter.uploaded_files.owner"];
           object_key?: parameters["rowFilter.uploaded_files.object_key"];
+          created_at?: parameters["rowFilter.uploaded_files.created_at"];
+          updated_at?: parameters["rowFilter.uploaded_files.updated_at"];
         };
         header: {
           /** Preference */
@@ -92,6 +96,8 @@ export interface paths {
           file_name?: parameters["rowFilter.uploaded_files.file_name"];
           owner?: parameters["rowFilter.uploaded_files.owner"];
           object_key?: parameters["rowFilter.uploaded_files.object_key"];
+          created_at?: parameters["rowFilter.uploaded_files.created_at"];
+          updated_at?: parameters["rowFilter.uploaded_files.updated_at"];
         };
         body: {
           /** uploaded_files */
@@ -147,6 +153,16 @@ export interface definitions {
     owner?: string;
     /** Format: text */
     object_key?: string;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    created_at?: string;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    updated_at?: string;
   };
 }
 
@@ -193,6 +209,10 @@ export interface parameters {
   "rowFilter.uploaded_files.owner": string;
   /** Format: text */
   "rowFilter.uploaded_files.object_key": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.uploaded_files.created_at": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.uploaded_files.updated_at": string;
 }
 
 export interface operations {}

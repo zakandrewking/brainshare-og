@@ -16,6 +16,8 @@ create table uploaded_files
     "file_name"  text,
     "owner"      uuid,
     "object_key" text, -- e.g. 'uploaded_files/Book1.56884IBTXK.xlsx'
+    "created_at" timestamptz DEFAULT now(),
+    "updated_at" timestamptz DEFAULT now(),
     CONSTRAINT "objects_owner_fkey" FOREIGN KEY ("owner") REFERENCES "auth"."users" ("id")
 );
 alter table uploaded_files
