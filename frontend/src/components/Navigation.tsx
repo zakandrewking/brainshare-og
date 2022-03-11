@@ -43,8 +43,8 @@ const NavButton = ({
       onClick()
     }}
     className={(navData) =>
-      (navData.isActive ? 'bg-slate-100 dark:bg-slate-800 ' : '') +
-      'flex items-center p-2 text-base font-normal duration-150 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 active:hover:bg-slate-200 active:dark:hover:bg-slate-700'
+      (navData.isActive ? 'bg-slate-200 dark:bg-slate-800 ' : '') +
+      'flex items-center p-2 text-base font-normal duration-150 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 active:hover:bg-slate-300 active:dark:hover:bg-slate-700'
     }
   >
     {/* TODO put these click effects in one place */}
@@ -85,12 +85,11 @@ export default function Navigation ({
 
       <div className="flex flex-row flex-wrap">
         {/* Menu based on https://github.com/themesberg/flowbite/blob/f3d8cb6f0fc9678d060196f0a542688c24b9159e/content/components/sidebar.md */}
-        <aside
-          aria-label="Sidebar"
+        <nav
           className={
             'w-screen md:w-48 border-b md:border-b-0 md:border-r mb-2 md:mb-0 md:mr-2 ' +
-            'border-indigo-100 dark:border-indigo-800 ' +
-            `flex-col space-y-2 md:flex ${open ? '' : 'hidden'}`
+            'border-slate-200 dark:border-slate-800 ' +
+            `flex-col gap-2 md:flex ${open ? '' : 'hidden'}`
           }
         >
           {/* Home */}
@@ -129,10 +128,10 @@ export default function Navigation ({
               Log In
             </NavButton>
               )}
-        </aside>
+        </nav>
 
         {/* Content */}
-        {children}
+        <main className="grow">{children}</main>
       </div>
     </div>
   )

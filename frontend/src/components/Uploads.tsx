@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { definitions } from '../schema/rest-api'
 import supabase from '../api/supabaseClient'
+import { FaFileExcel } from 'react-icons/fa'
 
 export default function Uploads () {
   const [table, page, limit] = ['uploaded_files', 0, 10]
@@ -24,17 +25,18 @@ export default function Uploads () {
   if (error) return <span>error</span>
   if (!uploadedFiles) return <span>loading</span>
   return (
-    <ul className="flex flex-col">
+    <div className="flex flex-col" role="list">
       {uploadedFiles.map((uploadedFile) => (
-        <li
-          className="m-3 p-3 w-full bg-green-200 rounded-lg"
+        <Link
+          to={`./${uploadedFile.id}`}
+          className="m-3 p-3 bg-emerald-100 hover:bg-emerald-200 active:bg-emerald-300 dark:bg-emerald-800 rounded-lg flex flex-row items-center gap-3"
           key={uploadedFile.id}
+          role="listitem"
         >
-          <Link to={`./${uploadedFile.id}`}>
-            {uploadedFile.id} {uploadedFile.file_name}
-          </Link>
-        </li>
+          <FaFileExcel />
+          {uploadedFile.file_name}
+        </Link>
       ))}
-    </ul>
+    </div>
   )
 }
