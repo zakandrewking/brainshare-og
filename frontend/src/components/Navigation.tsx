@@ -131,7 +131,7 @@ export default function Navigation ({
         </nav>
 
         {/* Content */}
-        <main className="grow pt-2 md:pt-2 md:px-2">{children}</main>
+        <main className="grow pt-4 md:pt-0 md:px-2">{children}</main>
       </div>
     </div>
   )

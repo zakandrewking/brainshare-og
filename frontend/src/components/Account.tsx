@@ -75,18 +75,18 @@ export default function Account () {
       <h3 className="text-2xl font-bold">Account</h3>
       <form action="">
         <div className="mt-4 space-y-6">
-          <div>
+          <div className="flex flex-col">
             <label htmlFor="email">Email</label>
             <input
               id="email"
               type="text"
               value={get(session, '.user.email', '')}
               disabled
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600
+              className="w-96 px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600
                 dark:text-gray-800"
             />
           </div>
-          <div>
+          <div className="flex flex-col">
             <label htmlFor="name">Name</label>
             <input
               id="name"
@@ -94,7 +94,7 @@ export default function Account () {
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={loading}
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600
+              className="w-96 px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600
                 dark:text-gray-800"
             />
           </div>
