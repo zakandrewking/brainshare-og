@@ -2,14 +2,39 @@
 
 why screen share when you can brainshare?
 
+The quickest way to turn a spreadsheet into a data-driven application. Provides
+a Postgres database, basic security, CRUD APIs, and asynchronous functions.
+
+# status
+
+Brainshare in early stage development, but feel free to peruse the code and try
+it out.
+
+# features
+
+- [X] upload XLSX
+- [X] REST API
+- [X] GraphQL API
+- [ ] create a postgres database
+- [ ] table view with collaborative editing
+- [ ] add new data from XLSX
+- [ ] form entry view
+- [ ] validation functions (plv8)
+- [ ] async functions to implement a https://3factor.app
+- [ ] cron functions
+- [ ] migrations
+- [ ] CLI and push-to-deploy
+
 # inspiration & acknowledgment
 
-brainshare is heavily based on [supabase](https://github.com/supabase/supabase) 
-and relies on the open source contributions of probably tens of thousands of 
+brainshare is based on [supabase](https://github.com/supabase/supabase) and
+relies on the open source contributions of probably tens of thousands of
 developers on hundreds of projects (would be cool to count them up!)
 
 - https://github.com/supabase/supabase 
 - https://github.com/themesberg/flowbite
+
+also inspired by Hasura and the https://3factor.app
 
 # Known issues
 
