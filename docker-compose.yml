@@ -161,9 +161,9 @@ services:
       SUPABASE_STORAGE_URL: http://storage:5000
       SUPABASE_ANON_KEY: ${ANON_KEY}
 
-  task-worker-py:
-    container_name: task-worker-py
-    build: ./task-worker-py
+  function-server:
+    container_name: function-server
+    build: ./function-server
     restart: unless-stopped
 
   # ----------

@@ -157,6 +157,15 @@ services:
         paths:
           - /api/table-parser/
 
+  - name: function-server
+    _comment: "Function server: /api/function-server/* -> http://function-server:5000/*"
+    url: http://function-server:5000/
+    routes:
+      - name: function-server-all
+        strip_path: true
+        paths:
+          - /api/function-server/
+
   - name: frontend
     url: http://frontend:3000/
     routes:
