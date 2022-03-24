@@ -1,6 +1,6 @@
-# brainshare
+# Brainshare
 
-why screen share when you can brainshare?
+why screen share when you can Brainshare?
 
 The quickest way to turn a spreadsheet into a data-driven application. Provides
 a Postgres database, basic security, CRUD APIs, and asynchronous functions.
