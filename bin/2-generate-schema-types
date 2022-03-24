@@ -2,7 +2,6 @@
 
 echo "frontend"
 cd "$(dirname "$0")/../frontend"
-
 ls ../schema | xargs -I {} basename {} .json | xargs -t -I {} $(yarn bin)/json2ts ../schema/{}.json src/schema/{}.d.ts
 
 echo

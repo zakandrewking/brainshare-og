@@ -1,7 +1,9 @@
 # Based on:
 # https://github.com/supabase/pg_graphql/blob/fe024e8a5e94e00547ecd2d6e65a6f839f4f0d3c/dockerfiles/db/Dockerfile
 
-FROM supabase/postgres:14.1.0 as build
+ARG POSTGRES_VERSION
+
+FROM supabase/postgres:${POSTGRES_VERSION} as build
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -29,7 +31,7 @@ RUN export \
     && ./bin/pgc build \
     && make install
 
-FROM supabase/postgres:14.1.0 as main
+FROM supabase/postgres:${POSTGRES_VERSION} as main
 
 # libgraphqlparser
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"

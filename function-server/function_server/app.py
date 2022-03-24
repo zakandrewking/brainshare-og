@@ -1,8 +1,11 @@
-from flask import Flask
+from flask import Flask, Request
+
+from .functions.database import create_db
 
 app = Flask(__name__)
 
 
-@app.route("/")
-def hello_world() -> str:
-    return "<p>Hello, World!</p>"
+@app.route("/create-db")
+def hello_world(request: Request) -> str:
+    data = request.json()
+    return create_db(data)

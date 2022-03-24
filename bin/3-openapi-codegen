@@ -30,6 +30,11 @@ python -m datamodel_code_generator --use-default --snake-case-field --allow-popu
 sed -i '' -e '/extensions.uuid_generate_v4()/d' table_parser/schema/rest_api.py
 sed -i '' -e '/now()/d' table_parser/schema/rest_api.py
 
+echo
+echo "function-server"
+cd "../function-server"
+cp ../table-parser/table_parser/schema/rest_api.py function_server/schema/
+
 # clean up
 cd ../bin
 rm openapi.json

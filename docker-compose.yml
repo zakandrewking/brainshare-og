@@ -40,7 +40,11 @@ services:
 
   db:
     container_name: db
-    build: ./db
+    image: brainshare/postgres:${POSTGRES_VERSION}
+    build:
+      context: ./db
+      args:
+        POSTGRES_VERSION: ${POSTGRES_VERSION}
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     restart: unless-stopped
     ports:
@@ -165,6 +169,10 @@ services:
     container_name: function-server
     build: ./function-server
     restart: unless-stopped
+    environment:
+      - POSTGRES_VERSION=${POSTGRES_VERSION}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   # ----------
   # Monitoring

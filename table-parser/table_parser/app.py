@@ -18,9 +18,6 @@ from uuid import UUID
 from .schema.table_parser import File, TableParserMessage, Status
 from .schema.rest_api import UploadedFiles
 
-# logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-
 # autobanh
 HOST = "0.0.0.0"
 PORT = 5000
