@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Request
+from fastapi.applications import get_swagger_ui_html
 import logging
 import docker  # type: ignore
 from typing import Any, Optional
@@ -13,7 +14,6 @@ POSTGRES_VERSION = os.environ.get("POSTGRES_VERSION")
 if not POSTGRES_VERSION:
     raise Exception("POSTGRES_VERSION not defined")
 
-
 app = FastAPI()
 
 
@@ -24,6 +24,18 @@ class Result(BaseModel):
 @app.get("/")
 async def read_root() -> str:
     return "Hello World"
+
+
+# https://github.com/tiangolo/fastapi/issues/4211
+@app.get("/docs1", include_in_schema=False)
+async def custom_swagger_ui_html(req: Request) -> Any:
+    root_path = "/api/function-server"
+    openapi_url = root_path + app.openapi_url
+    logging.info(openapi_url)
+    return get_swagger_ui_html(
+        openapi_url=openapi_url,
+        title="API",
+    )
 
 
 def create_db(data: Bases) -> Result:
