@@ -9,6 +9,4 @@ COPY function_server /app/function_server
 
 EXPOSE 5000
 
-ENV FLASK_APP=function_server.app
-
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+CMD ["uvicorn", "function_server.app:app", "--host", "0.0.0.0", "--port", "5000"]
