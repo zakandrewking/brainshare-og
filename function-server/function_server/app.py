@@ -21,21 +21,9 @@ class Result(BaseModel):
     message: str
 
 
-@app.get("/")
-async def read_root() -> str:
-    return "Hello World"
-
-
-# https://github.com/tiangolo/fastapi/issues/4211
-@app.get("/docs1", include_in_schema=False)
-async def custom_swagger_ui_html(req: Request) -> Any:
-    root_path = "/api/function-server"
-    openapi_url = root_path + app.openapi_url
-    logging.info(openapi_url)
-    return get_swagger_ui_html(
-        openapi_url=openapi_url,
-        title="API",
-    )
+@app.get("/", response_model=Result)
+async def read_root() -> Result:
+    return Result(message="Hello World")
 
 
 def create_db(data: Bases) -> Result:
