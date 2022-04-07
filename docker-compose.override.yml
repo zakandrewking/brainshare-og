@@ -80,7 +80,7 @@ services:
 
   mail:
     container_name: supabase-mail
-    image: inbucket/inbucket:stable
+    image: inbucket/inbucket:${INBUCKET_VERSION}
     ports:
       - '2500:2500' # SMTP
       - '9000:9000' # web interface
@@ -88,7 +88,7 @@ services:
 
   studio:
     container_name: supabase-studio
-    image: supabase/studio:latest
+    image: supabase/studio:${SUPABASE_STUDIO_VERSION}
     restart: unless-stopped
     ports:
       - ${STUDIO_PORT}:3000/tcp

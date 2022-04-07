@@ -8,7 +8,7 @@ services:
 
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.2.12
+    image: supabase/gotrue:${GOTRUE_VERSION}
     depends_on:
       - db
     restart: unless-stopped
@@ -64,7 +64,7 @@ services:
 
   kong:
     container_name: kong
-    image: kong:2.1
+    image: kong:${KONG_VERSION}
     restart: unless-stopped
     ports:
       # port should be the same as the frontend container so fast reloading
@@ -82,7 +82,7 @@ services:
 
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.29.0
+    image: supabase/postgres-meta:${SUPABASE_POSTGRES_META_VERSION}
     depends_on:
       - db
     restart: unless-stopped
@@ -93,7 +93,7 @@ services:
 
   realtime:
     container_name: supabase-realtime
-    image: supabase/realtime:v0.21.0
+    image: supabase/realtime:${SUPABASE_REALTIME_VERSION}
     depends_on:
       - db
     restart: unless-stopped
@@ -116,7 +116,7 @@ services:
 
   rest:
     container_name: rest
-    image: postgrest/postgrest:v9.0.0
+    image: postgrest/postgrest:${POSTGREST_VERSION}
     depends_on:
       - db
     restart: unless-stopped
@@ -130,7 +130,7 @@ services:
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v0.10.0
+    image: supabase/storage-api:${SUPABASE_STORAGE_API_VERSION}
     depends_on:
       - db
       - rest
@@ -180,12 +180,12 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana:8.4.3
+    image: grafana/grafana:${GRAFANA_VERSION}
 
   loki:
     container_name: loki
-    image: grafana/loki:k87-a677614
+    image: grafana/loki:${LOKI_VERSION}
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus:v2.33.4
+    image: prom/prometheus:${PROMETHEUS_VERSION}

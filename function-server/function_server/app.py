@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Response, Request
+from cProfile import label
+from fastapi import FastAPI, Response, Request, status, HTTPException
 from fastapi.applications import get_swagger_ui_html
 import logging
 import docker  # type: ignore
@@ -21,32 +22,40 @@ class Result(BaseModel):
     message: str
 
 
-@app.get("/", response_model=Result)
-async def read_root() -> Result:
-    return Result(message="Hello World")
+@app.get("/readyz", response_model=Result)
+async def readyz() -> Result:
+    return Result(message="ready")
 
 
+@app.post("/create-db", response_model=Result)
 def create_db(data: Bases) -> Result:
     # get client
     client = docker.from_env()
 
     # container details
     image = f"brainshare/postgres:{POSTGRES_VERSION}"
+    name = f"brainshare-base-db-{data.id}"
 
-    # check for existing container
-    containers = client.containers.list(filters={"name": "supabase-db"})
+    # check for existing container(s)
+    containers = client.containers.list(filters={"name": f"brainshare-base-db-{}"})
     if len(containers) > 0:
-        logging.info("Found existing container")
-        return "Found existing container"
+        ids = ", ".join(c.id for c in containers)
+        raise HTTPException(
+            status_code=400, detail=f"Found existing container(s): {ids}"
+        )
 
     # run docker container
-    client.containers.run(
-        image,
-        detach=True,
-        name="supabase-postgres",
-        ports={"5432/tcp": "5432"},
-        environment={"POSTGRES_PASSWORD": "supabase"},
-    )
+    try:
+        client.containers.run(
+            image,
+            detach=True,
+            name="",
+            ports={"5432/tcp": "5432"},
+            environment={"POSTGRES_PASSWORD": "supabase"},
+            labels=["brainshare-base-db"],
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error running container: {e}")
 
     logging.info("-- CREATE DB --")
 
