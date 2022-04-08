@@ -108,9 +108,7 @@ def insert_upload(file: File, object_key: str) -> None:
     }
     data = UploadedFiles(
         file_name=file.name, owner=UUID(file.user_id), object_key=object_key
-    ).json(
-        exclude_none=True
-    )  # TODO is this the way to do it?
+    ).json(exclude_none=True)
     logging.debug(url, data, headers)
     result = httpx.post(url, content=data, headers=headers)
     logging.debug(f"post result: {result.text}")

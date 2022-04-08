@@ -1,6 +1,5 @@
 from cProfile import label
 from fastapi import FastAPI, Response, Request, status, HTTPException
-from fastapi.applications import get_swagger_ui_html
 import logging
 import docker  # type: ignore
 from typing import Any, Optional
@@ -30,27 +29,32 @@ async def readyz() -> Result:
 @app.post("/create-db", response_model=Result)
 def create_db(data: Bases) -> Result:
     # get client
+    logging.debug("getting docker client")
     client = docker.from_env()
 
     # container details
     image = f"brainshare/postgres:{POSTGRES_VERSION}"
     name = f"brainshare-base-db-{data.id}"
 
-    # check for existing container(s)
-    containers = client.containers.list(filters={"name": f"brainshare-base-db-{}"})
+    logging.debug("checking for existing container(s)")
+    containers = client.containers.list(filters={"name": name})
     if len(containers) > 0:
         ids = ", ".join(c.id for c in containers)
         raise HTTPException(
             status_code=400, detail=f"Found existing container(s): {ids}"
         )
 
+    # TODO get latest port number and increment value by 1
+    port = 1234
+
     # run docker container
+    logging.debug("running docker container")
     try:
         client.containers.run(
             image,
             detach=True,
-            name="",
-            ports={"5432/tcp": "5432"},
+            name=name,
+            ports={"5432/tcp": port},  # bug: need a different port for each container
             environment={"POSTGRES_PASSWORD": "supabase"},
             labels=["brainshare-base-db"],
         )
