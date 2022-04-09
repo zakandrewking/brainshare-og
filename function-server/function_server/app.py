@@ -24,9 +24,12 @@ class Result(BaseModel):
     message: str
 
 
-class BasesTrigger(BaseModel):
-    record: Optional[Bases] = None
-    old_record: Optional[Bases] = None
+class BasesTriggerInsert(BaseModel):
+    record: Bases
+
+
+class BasesTriggerDelete(BaseModel):
+    old_record: Bases
 
 
 @app.get("/readyz", response_model=Result)
@@ -39,7 +42,7 @@ def make_container_name(id: UUID) -> str:
 
 
 @app.post("/delete-db", response_model=Result)
-def delete_db(bases_trigger: BasesTrigger) -> Result:
+def delete_db(bases_trigger: BasesTriggerDelete) -> Result:
     base = bases_trigger.old_record
 
     # get client
@@ -61,7 +64,7 @@ def delete_db(bases_trigger: BasesTrigger) -> Result:
 
 
 @app.post("/create-db", response_model=Result)
-def create_db(bases_trigger: BasesTrigger) -> Result:
+def create_db(bases_trigger: BasesTriggerInsert) -> Result:
     base = bases_trigger.record
 
     # TODO check JWT
