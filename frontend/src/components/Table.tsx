@@ -1,10 +1,9 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { definitions } from '../schema/rest-api'
 import supabase from '../api/supabaseClient'
 import useSwr from 'swr'
 import { FaCaretLeft, FaFileExcel } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
 
 import { Body, Button } from './Components'
 
@@ -14,10 +13,7 @@ export function TableView ({ tableName }: { tableName: string }) {
   const { data, error } = useSwr(
     `${tableName}?from=${from}&to=${to}`,
     async () => {
-      const result = await supabase
-        .from(tableName)
-        .select()
-        .range(from, to)
+      const result = await supabase.from(tableName).select().range(from, to)
       if (result.error) throw result.error
       return result.data
     }
@@ -34,15 +30,15 @@ export function TableView ({ tableName }: { tableName: string }) {
         </div>
         {data.map((datum) => (
           <Link
-            to={`./${datum.id ?? ""}`}
+            to={`./${datum.id ?? ''}`}
             className="px-1 py-3 border-t border-slate-200 dark:border-slate-700  hover:bg-slate-200 active:bg-slate-300 hover:dark:bg-slate-700 active:dark:bg-slate-700 flex flex-row items-center"
-            key={datum.id ?? ""}
+            key={datum.id ?? ''}
             role="listitem"
           >
             <div className="w-9">
               <FaFileExcel size="1.5em" />
             </div>
-            <div>{datum.name ?? ""}</div>
+            <div>{datum.name ?? ''}</div>
           </Link>
         ))}
       </div>
@@ -52,19 +48,13 @@ export function TableView ({ tableName }: { tableName: string }) {
 
 export function TableDetail ({ tableName }: { tableName: string }) {
   const { id } = useParams()
-  const { data , error } = useSwr(
-      `${tableName}?id={id}`,
-      async () => {
-        const result = await supabase
-          .from(tableName)
-          .select()
-          .eq('id', id)
-        if (result.error) throw result.error
-        // todo check length
-        if (result.data.length !== 1) throw Error('Wrong number of results')
-        return result.data[0]
-      }
-  )
+  const { data, error } = useSwr(`${tableName}?id={id}`, async () => {
+    const result = await supabase.from(tableName).select().eq('id', id)
+    if (result.error) throw result.error
+    // todo check length
+    if (result.data.length !== 1) throw Error('Wrong number of results')
+    return result.data[0]
+  })
   if (error) return <span>error</span>
   if (!data) return <span>loading</span>
   return (
@@ -76,4 +66,5 @@ export function TableDetail ({ tableName }: { tableName: string }) {
       </Link>
       <span className="text-2xl">{data.name ?? ''}</span>
     </div>
+  )
 }
