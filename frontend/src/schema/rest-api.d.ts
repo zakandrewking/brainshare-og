@@ -122,7 +122,7 @@ export interface paths {
       parameters: {
         query: {
           id?: parameters["rowFilter.uploaded_files.id"];
-          file_name?: parameters["rowFilter.uploaded_files.file_name"];
+          name?: parameters["rowFilter.uploaded_files.name"];
           owner?: parameters["rowFilter.uploaded_files.owner"];
           object_key?: parameters["rowFilter.uploaded_files.object_key"];
           created_at?: parameters["rowFilter.uploaded_files.created_at"];
@@ -178,7 +178,7 @@ export interface paths {
       parameters: {
         query: {
           id?: parameters["rowFilter.uploaded_files.id"];
-          file_name?: parameters["rowFilter.uploaded_files.file_name"];
+          name?: parameters["rowFilter.uploaded_files.name"];
           owner?: parameters["rowFilter.uploaded_files.owner"];
           object_key?: parameters["rowFilter.uploaded_files.object_key"];
           created_at?: parameters["rowFilter.uploaded_files.created_at"];
@@ -198,7 +198,7 @@ export interface paths {
       parameters: {
         query: {
           id?: parameters["rowFilter.uploaded_files.id"];
-          file_name?: parameters["rowFilter.uploaded_files.file_name"];
+          name?: parameters["rowFilter.uploaded_files.name"];
           owner?: parameters["rowFilter.uploaded_files.owner"];
           object_key?: parameters["rowFilter.uploaded_files.object_key"];
           created_at?: parameters["rowFilter.uploaded_files.created_at"];
@@ -249,6 +249,8 @@ export interface definitions {
   bases: {
     /**
      * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
      * @default extensions.uuid_generate_v4()
      */
     id: string;
@@ -278,7 +280,7 @@ export interface definitions {
      */
     id: string;
     /** Format: text */
-    file_name?: string;
+    name?: string;
     /** Format: uuid */
     owner?: string;
     /** Format: text */
@@ -350,7 +352,7 @@ export interface parameters {
   /** Format: uuid */
   "rowFilter.uploaded_files.id": string;
   /** Format: text */
-  "rowFilter.uploaded_files.file_name": string;
+  "rowFilter.uploaded_files.name": string;
   /** Format: uuid */
   "rowFilter.uploaded_files.owner": string;
   /** Format: text */
