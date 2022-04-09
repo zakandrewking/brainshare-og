@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import {
   FaAddressBook,
-  FaHamburger,
+  FaCaretDown,
+  FaDatabase,
   FaSignInAlt,
   FaSignOutAlt,
   FaTimes,
@@ -44,7 +45,7 @@ const NavButton = ({
     }}
     className={(navData) =>
       (navData.isActive ? 'bg-slate-200 dark:bg-slate-800 ' : '') +
-      'flex items-center p-2 text-base font-normal duration-150 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 active:hover:bg-slate-300 active:dark:hover:bg-slate-700'
+      'flex items-center p-2 pl-4 text-base font-normal duration-150 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 active:hover:bg-slate-300 active:dark:hover:bg-slate-700'
     }
   >
     {/* TODO put these click effects in one place */}
@@ -74,10 +75,10 @@ export default function Navigation ({
       <div className="flex flex-row items-center">
         {/* Responsive Nav */}
         <button
-          className="flex flex-col items-center md:hidden p-3 duration-150 text-slate-800 dark:text-slate-200 hover:text-slate-700 hover:dark:text-slate-300 active:text-slate-600 active:dark:text-slate-400"
+          className="flex flex-col items-center md:hidden p-3 pr-6 duration-150 text-slate-800 dark:text-slate-200 hover:text-slate-700 hover:dark:text-slate-300 active:text-slate-600 active:dark:text-slate-400"
           onClick={() => setOpen(!open)}
         >
-          {open ? <FaTimes /> : <FaHamburger />}
+          {open ? <FaTimes /> : <FaCaretDown />}
           <span className="text-xs">MENU</span>
         </button>
         <Logo />
@@ -102,6 +103,9 @@ export default function Navigation ({
             <React.Fragment>
               <NavButton to="/uploads" icon={<FaUpload />} setOpen={setOpen}>
                 Uploads
+              </NavButton>
+              <NavButton to="/bases" icon={<FaDatabase />} setOpen={setOpen}>
+                Bases
               </NavButton>
               <NavButton
                 to="/account"

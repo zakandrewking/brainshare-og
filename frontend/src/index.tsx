@@ -12,6 +12,7 @@ import LogIn from './components/LogIn'
 import Account from './components/Account'
 import Uploads from './components/Uploads'
 import Upload from './components/Upload'
+import { TableView, TableDetail } from './components/Table'
 import DatabaseList from './components/DatabaseList'
 import DatabaseView from './components/DatabaseView'
 
@@ -47,6 +48,11 @@ ReactDOM.render(
             <Route path="/account" element={<Account />} />
             <Route path="/uploads" element={<Uploads />} />
             <Route path="/uploads/:uploadId" element={<Upload />} />
+            <Route path="/bases" element={<TableView tableName="bases" />} />
+            <Route
+              path="/bases/:id"
+              element={<TableDetail tableName="bases" />}
+            />
             <Route path="/database" element={<DatabaseList />} />
             <Route path="/database/:databaseId" element={<DatabaseView />} />
             <Route path="*" element={<p>Nothing here!</p>} />

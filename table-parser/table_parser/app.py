@@ -1,6 +1,7 @@
 import os
 import string
 import random
+from types import coroutine
 from typing import Optional, Final, Any
 import logging
 import sys
@@ -18,7 +19,7 @@ from uuid import UUID
 from .schema.table_parser import File, TableParserMessage, Status
 from .schema.rest_api import UploadedFiles
 
-# autobanh
+# autobahn
 HOST = "0.0.0.0"
 PORT = 5000
 
@@ -107,7 +108,7 @@ def insert_upload(file: File, object_key: str) -> None:
         "Authorization": "Bearer " + file.access_token,
     }
     data = UploadedFiles(
-        file_name=file.name, owner=UUID(file.user_id), object_key=object_key
+        name=file.name, owner=UUID(file.user_id), object_key=object_key
     ).json(exclude_none=True)
     logging.debug(url, data, headers)
     result = httpx.post(url, content=data, headers=headers)
@@ -223,8 +224,8 @@ def main() -> None:
     factory.protocol = MyServerProtocol
 
     loop = asyncio.get_event_loop()
-    coro = loop.create_server(factory, HOST, PORT)
-    server = loop.run_until_complete(coro)
+    coroutine = loop.create_server(factory, HOST, PORT)
+    server = loop.run_until_complete(coroutine)
 
     try:
         loop.run_forever()

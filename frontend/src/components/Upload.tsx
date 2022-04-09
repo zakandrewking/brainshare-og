@@ -1,8 +1,10 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { definitions } from '../schema/rest-api'
 import supabase from '../api/supabaseClient'
 import useSwr from 'swr'
+import { FaCaretLeft } from 'react-icons/fa'
+import { Button } from './Components'
 
 export default function Upload () {
   const { uploadId } = useParams()
@@ -22,5 +24,14 @@ export default function Upload () {
   )
   if (error) return <span>error</span>
   if (!uploadedFile) return <span>loading</span>
-  return <h1>{uploadedFile.file_name ?? ''}</h1>
+  return (
+    <div className="flex flex-row items-center space-x-6 pl-3">
+      <Link to="..">
+        <Button>
+          <FaCaretLeft size={20} />
+        </Button>
+      </Link>
+      <span className="text-2xl">{uploadedFile.name ?? ''}</span>
+    </div>
+  )
 }

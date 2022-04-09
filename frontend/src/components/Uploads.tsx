@@ -34,14 +34,14 @@ export default function Uploads () {
         {uploadedFiles.map((uploadedFile) => (
           <Link
             to={`./${uploadedFile.id}`}
-            className="px-1 py-3 border-t 'border-slate-200 dark:border-slate-800  hover:bg-slate-200 active:bg-slate-300 hover:dark:bg-slate-800 active:dark:bg-slate-700 flex flex-row items-center"
+            className="px-1 py-3 border-t border-slate-200 dark:border-slate-700  hover:bg-slate-200 active:bg-slate-300 hover:dark:bg-slate-700 active:dark:bg-slate-700 flex flex-row items-center"
             key={uploadedFile.id}
             role="listitem"
           >
             <div className="w-9">
               <FaFileExcel size="1.5em" />
             </div>
-            <div>{uploadedFile.file_name}</div>
+            <div>{uploadedFile.name}</div>
           </Link>
         ))}
       </div>
