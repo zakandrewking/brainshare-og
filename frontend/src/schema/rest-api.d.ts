@@ -253,7 +253,7 @@ export interface definitions {
      */
     id: string;
     /** Format: text */
-    name?: string;
+    name: string;
     /** Format: text */
     storage_file_path?: string;
     /** Format: uuid */

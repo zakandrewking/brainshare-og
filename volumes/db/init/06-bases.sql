@@ -4,10 +4,10 @@ CREATE SEQUENCE bases_dev_port_seq AS INTEGER START 8400; -- base ports incremen
 create table bases
 (
     "id"                UUID NOT NULL DEFAULT extensions.uuid_generate_v4(),
-    "name"              TEXT,
+    "name"              TEXT NOT NULL UNIQUE,
     "storage_file_path" TEXT,
     "owner"             UUID,
-    "dev_port"          INTEGER DEFAULT nextval('bases_dev_port_seq'),
+    "dev_port"          INTEGER UNIQUE DEFAULT nextval('bases_dev_port_seq'),
     "created_at"        timestamptz DEFAULT now(),
     "updated_at"        timestamptz DEFAULT now(),
     CONSTRAINT "objects_owner_fkey" FOREIGN KEY ("owner") REFERENCES "auth"."users" ("id")
