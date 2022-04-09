@@ -19,8 +19,8 @@ export function Button ({
 }) {
   return (
     <button
-      className="duration-150 h-12 py-2.5 px-5 text-sm font-medium
-       bg-white border rounded-sm border-slate-300 dark:border-slate-700 hover:bg-slate-100 active:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:active:bg-slate-600
+      className="duration-150 h-12 py-1 px-4 text-sm font-medium
+       bg-white border rounded border-slate-300 dark:border-slate-700 hover:bg-slate-100 active:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:active:bg-slate-600
        disabled:bg-slate-100 disabled:hover:bg-slate-100 disabled:text-slate-500 dark:disabled:text-slate-400 dark:disabled:bg-slate-700  dark:disabled:hover:bg-slate-700
          focus:z-10 focus:ring-2 focus:ring-blue-700"
       onClick={onClick}

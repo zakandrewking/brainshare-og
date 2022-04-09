@@ -85,7 +85,7 @@ export function TableDetail ({ tableName }: { tableName: string }) {
       <Link to="./..">
         <Button>{snakeCaseToText(tableName)}</Button>
       </Link>
-      <span className="text-2xl">/</span>
+      <span className="text-2xl pl-1">&#8725;</span>
       <span className="text-2xl">{data.name ?? ''}</span>
     </div>
   )
