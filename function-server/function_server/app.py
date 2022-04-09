@@ -27,14 +27,14 @@ async def readyz() -> Result:
 
 
 @app.post("/create-db", response_model=Result)
-def create_db(data: Bases) -> Result:
+def create_db(base: Bases) -> Result:
     # get client
     logging.debug("getting docker client")
     client = docker.from_env()
 
     # container details
     image = f"brainshare/postgres:{POSTGRES_VERSION}"
-    name = f"brainshare-base-db-{data.id}"
+    name = f"brainshare-base-db-{base.id}"
 
     logging.debug("checking for existing container(s)")
     containers = client.containers.list(filters={"name": name})
@@ -45,7 +45,7 @@ def create_db(data: Bases) -> Result:
         )
 
     # TODO get latest port number and increment value by 1
-    port = 1234
+    port = base.dev_port
 
     # run docker container
     logging.debug("running docker container")

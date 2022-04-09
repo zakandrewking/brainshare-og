@@ -20,6 +20,7 @@ export interface paths {
           name?: parameters["rowFilter.bases.name"];
           storage_file_path?: parameters["rowFilter.bases.storage_file_path"];
           owner?: parameters["rowFilter.bases.owner"];
+          dev_port?: parameters["rowFilter.bases.dev_port"];
           created_at?: parameters["rowFilter.bases.created_at"];
           updated_at?: parameters["rowFilter.bases.updated_at"];
           /** Filtering Columns */
@@ -76,6 +77,7 @@ export interface paths {
           name?: parameters["rowFilter.bases.name"];
           storage_file_path?: parameters["rowFilter.bases.storage_file_path"];
           owner?: parameters["rowFilter.bases.owner"];
+          dev_port?: parameters["rowFilter.bases.dev_port"];
           created_at?: parameters["rowFilter.bases.created_at"];
           updated_at?: parameters["rowFilter.bases.updated_at"];
         };
@@ -96,6 +98,7 @@ export interface paths {
           name?: parameters["rowFilter.bases.name"];
           storage_file_path?: parameters["rowFilter.bases.storage_file_path"];
           owner?: parameters["rowFilter.bases.owner"];
+          dev_port?: parameters["rowFilter.bases.dev_port"];
           created_at?: parameters["rowFilter.bases.created_at"];
           updated_at?: parameters["rowFilter.bases.updated_at"];
         };
@@ -255,6 +258,8 @@ export interface definitions {
     storage_file_path?: string;
     /** Format: uuid */
     owner?: string;
+    /** Format: integer */
+    dev_port?: number;
     /**
      * Format: timestamp with time zone
      * @default now()
@@ -334,6 +339,8 @@ export interface parameters {
   "rowFilter.bases.storage_file_path": string;
   /** Format: uuid */
   "rowFilter.bases.owner": string;
+  /** Format: integer */
+  "rowFilter.bases.dev_port": string;
   /** Format: timestamp with time zone */
   "rowFilter.bases.created_at": string;
   /** Format: timestamp with time zone */
