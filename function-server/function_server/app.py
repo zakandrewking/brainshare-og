@@ -6,20 +6,26 @@ import docker  # type: ignore
 from typing import Any, Optional
 import os
 from pydantic import BaseModel
-
+from enum import Enum
 
 from .schema.rest_api import Bases
+
 
 # get environment variables
 POSTGRES_VERSION = os.environ.get("POSTGRES_VERSION")
 if not POSTGRES_VERSION:
     raise Exception("POSTGRES_VERSION not defined")
 
+
 app = FastAPI()
 
 
 class Result(BaseModel):
     message: str
+
+
+class BasesTrigger(BaseModel):
+    record: Bases
 
 
 @app.get("/readyz", response_model=Result)
@@ -52,7 +58,11 @@ def delete_db(base: Bases) -> Result:
 
 
 @app.post("/create-db", response_model=Result)
-def create_db(base: Bases) -> Result:
+async def create_db(bases_trigger: BasesTrigger) -> Result:
+    base = bases_trigger.record
+
+    # TODO check JWT
+
     # get client
     logging.debug("getting docker client")
     client = docker.from_env()
