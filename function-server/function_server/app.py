@@ -25,7 +25,8 @@ class Result(BaseModel):
 
 
 class BasesTrigger(BaseModel):
-    record: Bases
+    record: Optional[Bases] = None
+    old_record: Optional[Bases] = None
 
 
 @app.get("/readyz", response_model=Result)
@@ -38,7 +39,9 @@ def make_container_name(id: UUID) -> str:
 
 
 @app.post("/delete-db", response_model=Result)
-def delete_db(base: Bases) -> Result:
+def delete_db(bases_trigger: BasesTrigger) -> Result:
+    base = bases_trigger.old_record
+
     # get client
     logging.debug("getting docker client")
     client = docker.from_env()
@@ -58,7 +61,7 @@ def delete_db(base: Bases) -> Result:
 
 
 @app.post("/create-db", response_model=Result)
-async def create_db(bases_trigger: BasesTrigger) -> Result:
+def create_db(bases_trigger: BasesTrigger) -> Result:
     base = bases_trigger.record
 
     # TODO check JWT
