@@ -1,19 +1,11 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom'
-import supabase from '../api/supabaseClient'
 import useSwr from 'swr'
 import { FaFileExcel } from 'react-icons/fa'
 
+import supabase from '../api/supabaseClient'
 import { Body, Button } from './Components'
-
-/*
- * Replace underscores with capital letters and spaces
- */
-function snakeCaseToText (text: string): string {
-  return text
-    .replace(/^[a-z]/, (match) => match.toUpperCase())
-    .replace(/_([a-z])/g, (_, match) => ` ${match.toUpperCase()}`)
-}
+import { snakeCaseToText } from '../util/snakeCaseToText'
 
 export function TableView ({ tableName }: { tableName: string }) {
   const [page, limit] = [0, 10]
@@ -81,12 +73,14 @@ export function TableDetail ({ tableName }: { tableName: string }) {
   if (error) return <span>error</span>
   if (!data) return <span>loading</span>
   return (
-    <div className="flex flex-row items-center space-x-6 pl-3">
-      <Link to="./..">
-        <Button>{snakeCaseToText(tableName)}</Button>
-      </Link>
-      <span className="text-2xl pl-1">&#8725;</span>
-      <span className="text-2xl">{data.name ?? ''}</span>
-    </div>
+    <Body>
+      <div className="flex flex-row items-center space-x-6 pl-3">
+        <Link to="./..">
+          <Button>{snakeCaseToText(tableName)}</Button>
+        </Link>
+        <span className="text-2xl pl-1">&#8725;</span>
+        <span className="text-2xl">{data.name ?? ''}</span>
+      </div>
+    </Body>
   )
 }

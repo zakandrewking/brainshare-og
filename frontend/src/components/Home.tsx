@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
 import { useDropzone } from 'react-dropzone'
 import useWebSocket from 'react-use-websocket'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Session } from '@supabase/supabase-js'
 
 import { Body, Button } from './Components'
@@ -17,6 +17,7 @@ function MyDropzone ({ session }: { session: Session }) {
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
   const setMessage = useContext(MessageBoxContext)
+  const navigate = useNavigate()
 
   const { sendMessage, sendJsonMessage } = useWebSocket(
     'ws://' + window.location.host + '/api/table-parser/sock',
@@ -41,9 +42,16 @@ function MyDropzone ({ session }: { session: Session }) {
         console.debug(message)
 
         if (message.status === 'UPLOAD_SUCCESS') {
-          setStatus('Uploaded')
+          setStatus('Saving')
         } else if (message.status === 'SAVED') {
-          setStatus('Saved')
+          if (!message.uploadedFileId) {
+            throw Error('uploadedFileId not set in message SAVED')
+          }
+          setStatus('Saved ... preparing your file')
+          setTimeout(
+            () => navigate(`/uploads/${message.uploadedFileId}/prepare-base`),
+            2000
+          )
         } else if (message.status === 'ERROR') {
           console.warn(message.error)
           setStatus('Failed')

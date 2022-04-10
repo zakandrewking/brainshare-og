@@ -12,8 +12,8 @@ create policy "User can read their own file"
 -- Track file upload metadata
 create table uploaded_files
 (
-    "id"         UUID NOT NULL DEFAULT extensions.uuid_generate_v4(),
-    "name"  TEXT,
+    "id"         UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+    "name"       TEXT,
     "owner"      UUID,
     "object_key" TEXT, -- e.g. 'uploaded_files/Book1.56884IBTXK.xlsx'
     "created_at" timestamptz DEFAULT now(),

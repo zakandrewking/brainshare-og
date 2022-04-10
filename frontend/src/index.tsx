@@ -11,8 +11,8 @@ import PageLayout from './components/PageLayout'
 import LogIn from './components/LogIn'
 import Account from './components/Account'
 import { TableView, TableDetail } from './components/Table'
-import DatabaseList from './components/DatabaseList'
-import DatabaseView from './components/DatabaseView'
+import UploadDetail from './components/UploadDetail'
+import PrepareBase from './components/PrepareBase'
 
 // in development, auto-log-in
 if (process.env.NODE_ENV === 'development') {
@@ -48,17 +48,13 @@ ReactDOM.render(
               path="/uploads"
               element={<TableView tableName="uploaded_files" />}
             />
-            <Route
-              path="/uploads/:id"
-              element={<TableDetail tableName="uploaded_files" />}
-            />
+            <Route path="/uploads/:id" element={<UploadDetail />} />
+            <Route path="/uploads/:id/prepare-base" element={<PrepareBase />} />
             <Route path="/bases" element={<TableView tableName="bases" />} />
             <Route
               path="/bases/:id"
               element={<TableDetail tableName="bases" />}
             />
-            <Route path="/database" element={<DatabaseList />} />
-            <Route path="/database/:databaseId" element={<DatabaseView />} />
             <Route path="*" element={<p>Nothing here!</p>} />
           </Route>
         </Routes>

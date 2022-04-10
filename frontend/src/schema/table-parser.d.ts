@@ -6,14 +6,15 @@
  */
 
 export interface TableParserMessage {
-  status: 'PREPARE_UPLOAD' | 'UPLOAD_SUCCESS' | 'SAVED' | 'LASERS' | 'ERROR'
-  error: string
+  status: "PREPARE_UPLOAD" | "UPLOAD_SUCCESS" | "SAVED" | "LASERS" | "ERROR";
+  error: string;
   file?: {
-    name: string
-    nSlices: number
-    accessToken: string
-    userId: string
-    contentType: string
-  }
-  hasLasers?: string
+    name: string;
+    nSlices: number;
+    accessToken: string;
+    userId: string;
+    contentType: string;
+  };
+  uploadedFileId?: string;
+  hasLasers?: string;
 }

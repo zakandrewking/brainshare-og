@@ -100,20 +100,23 @@ def upload_file(file: File, file_data: FileData) -> str:
     return object_key
 
 
-def insert_upload(file: File, object_key: str) -> None:
+def insert_upload(file: File, object_key: str) -> str:
     """2 insert into table for user 'uploads' with foreign key to bucket"""
     url = f"{SUPABASE_REST_URL}/uploaded_files"
     headers = {  # TODO make a function
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": "Bearer " + file.access_token,
+        "Prefer": "return=representation",
     }
     data = UploadedFiles(
         name=file.name, owner=UUID(file.user_id), object_key=object_key
     ).json(exclude_none=True)
-    logging.debug(url, data, headers)
     result = httpx.post(url, content=data, headers=headers)
+    logging.debug(f"post result: {result.status_code}")
     logging.debug(f"post result: {result.text}")
+    logging.debug(f"post result: {result.headers}")
     result.raise_for_status()
+    return result.json()[0]["id"]
 
 
 # Websockets
@@ -187,11 +190,15 @@ class MyServerProtocol(WebSocketServerProtocol):
             # upload file and insert upload row to track details
             try:
                 object_key = upload_file(self.file, self.file_data)
-                insert_upload(self.file, object_key)
+                uploaded_file_id = insert_upload(self.file, object_key)
             except Exception as e:
                 self.send_error(f"Could not save file; error: {e}")
                 raise e
-            self.send_message(TableParserMessage(status=Status.saved))
+            self.send_message(
+                TableParserMessage(
+                    status=Status.saved, uploaded_file_id=uploaded_file_id
+                )
+            )
         else:
             logging.debug(
                 f"slice {current_slice + 1} of {n_slices}. Ready for next slice."
