@@ -52,6 +52,8 @@ services:
     # command: 'python -m pdb -c continue -m table_parser'
     # stdin_open: true
     # tty: true
+    # reload server on file changes:
+    command: [ "watchmedo", "auto-restart", "-d", "table_parser", "--pattern", "*.py", "--recursive", "--signal", "SIGTERM", "--", "python", "-m", "table_parser" ]
     volumes:
       - ./table-parser:/app
 
