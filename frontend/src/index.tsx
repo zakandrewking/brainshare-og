@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import reportWebVitals from './reportWebVitals'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { SWRConfig } from 'swr'
 
 import { UserSessionProvider } from './context/UserSession'
 
@@ -35,29 +36,43 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
+/**
+ *  Any time SWR sees an error, we can log or display it.
+ */
+const swrErrorHandler = (error: any) => {
+  if (error.status !== 403 && error.status !== 404) {
+    console.error(error)
+  }
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <UserSessionProvider>
-        <Routes>
-          <Route element={<PageLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/log-in" element={<LogIn />} />
-            <Route path="/account" element={<Account />} />
-            <Route
-              path="/uploads"
-              element={<TableView tableName="uploaded_files" />}
-            />
-            <Route path="/uploads/:id" element={<UploadDetail />} />
-            <Route path="/uploads/:id/prepare-base" element={<PrepareBase />} />
-            <Route path="/bases" element={<TableView tableName="bases" />} />
-            <Route
-              path="/bases/:id"
-              element={<TableDetail tableName="bases" />}
-            />
-            <Route path="*" element={<p>Nothing here!</p>} />
-          </Route>
-        </Routes>
+        <SWRConfig value={{ onError: swrErrorHandler }}>
+          <Routes>
+            <Route element={<PageLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/log-in" element={<LogIn />} />
+              <Route path="/account" element={<Account />} />
+              <Route
+                path="/uploads"
+                element={<TableView tableName="uploaded_files" />}
+              />
+              <Route path="/uploads/:id" element={<UploadDetail />} />
+              <Route
+                path="/uploads/:id/prepare-base"
+                element={<PrepareBase />}
+              />
+              <Route path="/bases" element={<TableView tableName="bases" />} />
+              <Route
+                path="/bases/:id"
+                element={<TableDetail tableName="bases" />}
+              />
+              <Route path="*" element={<p>Nothing here!</p>} />
+            </Route>
+          </Routes>
+        </SWRConfig>
       </UserSessionProvider>
     </BrowserRouter>
   </React.StrictMode>,
