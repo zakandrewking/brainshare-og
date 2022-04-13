@@ -22,7 +22,6 @@
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
     "react-spinners": "^0.11.0",
-    "react-use-websocket": "^3.0.0",
     "swr": "^1.2.2",
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"

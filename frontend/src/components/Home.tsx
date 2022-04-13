@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react'
 import { useDropzone } from 'react-dropzone'
-import useWebSocket from 'react-use-websocket'
 import { Link, useNavigate } from 'react-router-dom'
 import { Session } from '@supabase/supabase-js'
 
@@ -9,7 +8,8 @@ import { MessageBoxContext } from '../context/MessageBox'
 import { sliceFile } from '../util/files'
 import { UserSessionContext } from '../context/UserSession'
 import { TableParserMessage } from '../schema/table-parser'
-import { onLasers, setSendLasers } from '../debug/lasers'
+
+import useTableParser from '../api/useTableParser'
 
 import './Home.css'
 
@@ -19,55 +19,30 @@ function MyDropzone ({ session }: { session: Session }) {
   const setMessage = useContext(MessageBoxContext)
   const navigate = useNavigate()
 
-  const { sendMessage, sendJsonMessage } = useWebSocket(
-    'ws://' + window.location.host + '/api/table-parser/sock',
-    {
-      onOpen: () => {
-        console.log('websocket open')
-        setStatus('Connected')
+  const { sendMessage, sendJsonMessage } = useTableParser({
+    onOpen: () => setStatus('Connected'),
+    onClose: () => setStatus('Disconnected'),
+    onMessage: (message: TableParserMessage) => {
+      console.debug(message)
 
-        // for debugging
-        setSendLasers((m) => {
-          const message: TableParserMessage = {
-            status: 'LASERS',
-            hasLasers: m,
-            error: ''
-          }
-          sendJsonMessage(message)
-        })
-      },
-      onMessage: (event) => {
-        console.debug('websocket message received', event)
-        const message: TableParserMessage = JSON.parse(event.data)
-        console.debug(message)
-
-        if (message.status === 'UPLOAD_SUCCESS') {
-          setStatus('Saving')
-        } else if (message.status === 'SAVED') {
-          if (!message.uploadedFileId) {
-            throw Error('uploadedFileId not set in message SAVED')
-          }
-          setStatus('Saved ... preparing your file')
-          setTimeout(
-            () => navigate(`/uploads/${message.uploadedFileId}/prepare-base`),
-            2000
-          )
-        } else if (message.status === 'ERROR') {
-          console.warn(message.error)
-          setStatus('Failed')
-          setProgress(0)
-        } else if (message.status === 'LASERS' && message.hasLasers) {
-          onLasers(message.hasLasers) // debugging
+      if (message.status === 'UPLOAD_SUCCESS') {
+        setStatus('Saving')
+      } else if (message.status === 'SAVED') {
+        if (!message.uploadedFileId) {
+          throw Error('uploadedFileId not set in message SAVED')
         }
-      },
-      onClose: () => {
-        console.log('websocket closed')
-        setStatus('Disconnected')
-        setSendLasers(() => console.log('Websocket closed')) // for debugging
-      },
-      shouldReconnect: (closeEvent) => true
+        setStatus('Saved ... preparing your file')
+        setTimeout(
+          () => navigate(`/uploads/${message.uploadedFileId}/prepare-base`),
+          2000
+        )
+      } else if (message.status === 'ERROR') {
+        console.warn(message.error)
+        setStatus('Failed')
+        setProgress(0)
+      }
     }
-  )
+  })
 
   const onDrop = async (acceptedFiles: File[]) => {
     setProgress(0)
@@ -98,13 +73,17 @@ function MyDropzone ({ session }: { session: Session }) {
     try {
       sendJsonMessage(message)
     } catch {
-      setMessage('Could not connect. Try again in a few minutes.')
+      setMessage(
+        'Could not connect. Please refresh the page or try again in a few minutes.'
+      )
     }
     for (let i = 0; i < nSlices; i++) {
       try {
         sendMessage(await nextSlice())
       } catch {
-        setMessage('Could not connect. Try again in a few minutes.')
+        setMessage(
+          'Could not connect. Please refresh the page or try again in a few minutes.'
+        )
       }
       const percentage = (i + 1) / nSlices
       setProgress(percentage)

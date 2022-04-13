@@ -6,7 +6,7 @@
  */
 
 export interface TableParserMessage {
-  status: "PREPARE_UPLOAD" | "UPLOAD_SUCCESS" | "SAVED" | "LASERS" | "ERROR";
+  status: "PREPARE_UPLOAD" | "UPLOAD_SUCCESS" | "SAVED" | "ERROR";
   error: string;
   file?: {
     name: string;
@@ -16,5 +16,4 @@ export interface TableParserMessage {
     contentType: string;
   };
   uploadedFileId?: string;
-  hasLasers?: string;
 }

@@ -7,7 +7,6 @@
         "PREPARE_UPLOAD",
         "UPLOAD_SUCCESS",
         "SAVED",
-        "LASERS",
         "ERROR"
       ],
       "type": "string"
@@ -45,9 +44,6 @@
       ]
     },
     "uploadedFileId": {
-      "type": "string"
-    },
-    "hasLasers": {
       "type": "string"
     }
   },

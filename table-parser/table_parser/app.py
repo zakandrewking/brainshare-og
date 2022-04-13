@@ -139,15 +139,6 @@ class MyServerProtocol(WebSocketServerProtocol):
         message = TableParserMessage.parse_raw(payload.decode("utf8"))
         print(message)
 
-        # testing
-        if message.has_lasers:
-            self.send_message(
-                TableParserMessage(
-                    status=Status.lasers, has_lasers=f"more {message.has_lasers}"
-                )
-            )
-            return
-
         # initialize
         if message.file:
             self.file = message.file

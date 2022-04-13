@@ -5,6 +5,8 @@ import useSwr from 'swr'
 import supabase from '../api/supabaseClient'
 import { Body, Button } from './Components'
 import { snakeCaseToText } from '../util/snakeCaseToText'
+import useTableParser from '../api/useTableParser'
+import { TableParserMessage } from '../schema/table-parser'
 
 export default function PrepareBase () {
   const tableName = 'uploaded_files'
@@ -19,6 +21,14 @@ export default function PrepareBase () {
   })
 
   const [status, setStatus] = useState('')
+
+  useTableParser({
+    onOpen: () => setStatus('Connected'),
+    onClose: () => setStatus('Disconnected'),
+    onMessage: (message: TableParserMessage) => {
+      console.debug(message)
+    }
+  })
 
   if (error) return <span>error</span>
   if (!data) return <span>loading</span>
