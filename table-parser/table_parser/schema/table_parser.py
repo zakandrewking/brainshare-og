@@ -61,14 +61,22 @@ class RequestTableUpdate(BaseModel):
     status: Literal["REQUEST_TABLE_UPDATE"] = "REQUEST_TABLE_UPDATE"
 
 
+class TableData(BaseModel):
+    class Config:
+        extra = Extra.forbid
+        allow_population_by_field_name = True
+
+    row_data: List[Dict[str, Any]] = Field(..., alias="rowData")
+    column_defs: List[Dict[str, Any]] = Field(..., alias="columnDefs")
+
+
 class TableUpdate(BaseModel):
     class Config:
         extra = Extra.forbid
         allow_population_by_field_name = True
 
     status: Literal["TABLE_UPDATE"]
-    row_data: List[Dict[str, Any]] = Field(..., alias="rowData")
-    column_defs: List[Dict[str, Any]] = Field(..., alias="columnDefs")
+    table_data: TableData = Field(..., alias="tableData")
 
 
 class TableParserWrapper(BaseModel):

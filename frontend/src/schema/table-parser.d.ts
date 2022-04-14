@@ -32,10 +32,12 @@ export type TableParserMessage =
     }
   | {
       status: "TABLE_UPDATE";
-      rowData: {
-        [k: string]: unknown;
-      }[];
-      columnDefs: {
-        [k: string]: unknown;
-      }[];
+      tableData: {
+        rowData: {
+          [k: string]: unknown;
+        }[];
+        columnDefs: {
+          [k: string]: unknown;
+        }[];
+      };
     };

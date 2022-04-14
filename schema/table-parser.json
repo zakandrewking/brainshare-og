@@ -106,24 +106,33 @@
         "status": {
           "const": "TABLE_UPDATE"
         },
-        "rowData": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
-        },
-        "columnDefs": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
+        "tableData": {
+          "type": "object",
+          "properties": {
+            "rowData": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "columnDefs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "rowData",
+            "columnDefs"
+          ]
         }
       },
       "additionalProperties": false,
       "required": [
         "status",
-        "rowData",
-        "columnDefs"
+        "tableData"
       ]
     }
   ]

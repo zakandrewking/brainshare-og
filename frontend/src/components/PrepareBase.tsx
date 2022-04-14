@@ -9,26 +9,18 @@ import 'ag-grid-community/dist/styles/ag-theme-alpine.css'
 import supabase from '../api/supabaseClient'
 import { Body, Button } from './Components'
 import { snakeCaseToText } from '../util/snakeCaseToText'
-import useTableParser from '../api/useTableParser'
-import { TableParserMessage } from '../schema/table-parser'
+import useTableParser, { TableData } from '../api/useTableParser'
 
 export default function PrepareBase () {
-  const [status, setStatus] = useState('')
+  const [tableData, setTableData] = useState<TableData | null>()
 
-  const [rowData, setRowData] = useState<any[]>([])
-  const [columnDefs, setColumnDefs] = useState<any[]>([])
-
-  useTableParser({
-    onOpen: () => setStatus('Connected'),
-    onClose: () => setStatus('Disconnected'),
-    onMessage: (message: TableParserMessage) => {
-      console.debug(message)
-      if (message.status === 'TABLE_UPDATE') {
-        setRowData(message.rowData)
-        setColumnDefs(message.columnDefs)
-      }
+  const { tableData: firstTableData } = useTableParser({
+    onTableData: (tableData: TableData | null) => {
+      setTableData(tableData)
     }
   })
+
+  setTableData(firstTableData)
 
   const tableName = 'uploaded_files'
   const { id } = useParams()
@@ -58,8 +50,8 @@ export default function PrepareBase () {
           <span className="text-2xl pl-1">&#8725;</span>
           <span className="text-2xl">PrepareBase</span>
         </div>
-        <h1>Status: {status}</h1>
-        <AgGridReact rowData={rowData} columnDefs={columnDefs}></AgGridReact>
+        {tableData}
+        <AgGridReact rowData={[]} columnDefs={[]}></AgGridReact>
       </div>
     </Body>
   )

@@ -12,11 +12,19 @@ const WEBSOCKET_CLOSE_TIMEOUT_MS = 2000
 // If no one is listening after a timeout, then close the websocket
 let websocketCloseTimeout: ReturnType<typeof setTimeout> | null = null
 
+// cache table data so it can be loaded in the background
+export interface TableData {
+  rowData: { [k: string]: any }
+  columnDefs: { [k: string]: any }
+}
+let tableCache: TableData | null = null
+
 // singleton to track all listeners
 interface Listener {
-  onOpen: () => void
-  onClose: () => void
-  onMessage: (m: TableParserMessage) => void
+  onOpen?: () => void
+  onClose?: () => void
+  onMessage?: (m: TableParserMessage) => void
+  onTableData?: (tableData: TableData | null) => void
 }
 const listeners: Set<Listener> = new Set()
 
@@ -31,16 +39,29 @@ const reopen = () => {
   // Keep a single copy of the websocket
   websocket.onopen = () => {
     console.debug('WebSocket opened')
-    listeners.forEach((listener) => listener.onOpen())
+    listeners.forEach((listener) => listener.onOpen && listener.onOpen())
   }
   websocket.onclose = () => {
     // TODO try to reopen
     console.debug('WebSocket closed')
-    listeners.forEach((listener) => listener.onClose())
+    listeners.forEach((listener) => listener.onClose && listener.onClose())
   }
   websocket.onmessage = (event: MessageEvent) => {
     const message: TableParserMessage = JSON.parse(event.data)
-    listeners.forEach((listener) => listener.onMessage(message))
+
+    // check for and cache row data and column defs
+    if (message.status === 'TABLE_UPDATE') {
+      tableCache = message.tableData
+    }
+
+    listeners.forEach((listener) => {
+      listener.onMessage && listener.onMessage(message)
+
+      // share cache
+      if (message.status === 'TABLE_UPDATE' && listener.onTableData) {
+        listener.onTableData(tableCache)
+      }
+    })
   }
 }
 
@@ -77,6 +98,7 @@ export default function useTableParser (listener: Listener) {
             console.debug('Closing websocket')
             websocket.close()
             websocket = null
+            tableCache = null
           }
         }, WEBSOCKET_CLOSE_TIMEOUT_MS)
       }
@@ -84,6 +106,8 @@ export default function useTableParser (listener: Listener) {
   }, []) // only run once per component mount
 
   return {
+    // share current cache
+    tableData: tableCache,
     sendMessage: (message: string | Blob) => {
       if (!websocket || websocket.readyState !== websocket.OPEN) {
         throw Error('WebSocket not open')
