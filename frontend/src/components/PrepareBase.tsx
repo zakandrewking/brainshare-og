@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import useSwr from 'swr'
+import { AgGridReact } from 'ag-grid-react'
+
+import 'ag-grid-community/dist/styles/ag-grid.css'
+import 'ag-grid-community/dist/styles/ag-theme-alpine.css'
 
 import supabase from '../api/supabaseClient'
 import { Body, Button } from './Components'
@@ -9,6 +13,32 @@ import useTableParser from '../api/useTableParser'
 import { TableParserMessage } from '../schema/table-parser'
 
 export default function PrepareBase () {
+  const [status, setStatus] = useState('')
+
+  const [rowData, setRowData] = useState([
+    { make: 'Toyota', model: 'Celica', price: 35000 },
+    { make: 'Ford', model: 'Mondeo', price: 32000 },
+    { make: 'Porsche', model: 'Boxter', price: 72000 }
+  ])
+
+  const [columnDefs, setColumnDefs] = useState([
+    { field: 'make' },
+    { field: 'model' },
+    { field: 'price' }
+  ])
+
+  useTableParser({
+    onOpen: () => setStatus('Connected'),
+    onClose: () => setStatus('Disconnected'),
+    onMessage: (message: TableParserMessage) => {
+      console.debug(message)
+      if (message.status === 'TABLE_UPDATE') {
+        setRowData(message.rowData)
+        setColumnDefs(message.columnDefs)
+      }
+    }
+  })
+
   const tableName = 'uploaded_files'
   const { id } = useParams()
   // TODO get this data from websocket if we already have it
@@ -20,20 +50,8 @@ export default function PrepareBase () {
     return result.data[0]
   })
 
-  const [status, setStatus] = useState('')
-
-  useTableParser({
-    onOpen: () => setStatus('Connected'),
-    onClose: () => setStatus('Disconnected'),
-    onMessage: (message: TableParserMessage) => {
-      console.debug(message)
-    }
-  })
-
   if (error) return <span>error</span>
   if (!data) return <span>loading</span>
-
-  // connect to websockets & get status
 
   return (
     <Body>
@@ -50,6 +68,7 @@ export default function PrepareBase () {
           <span className="text-2xl">PrepareBase</span>
         </div>
         <h1>Status: {status}</h1>
+        <AgGridReact rowData={rowData} columnDefs={columnDefs}></AgGridReact>
       </div>
     </Body>
   )

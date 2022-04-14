@@ -16,7 +16,13 @@ from autobahn.asyncio.websocket import (  # type: ignore
 )
 from uuid import UUID
 
-from .schema.table_parser import File, TableParserMessage, Status
+from .schema.table_parser import (
+    TableParserWrapper,
+    Error,
+    Saved,
+    UploadSuccess,
+    File,
+)
 from .schema.rest_api import UploadedFiles
 
 # autobahn
@@ -126,21 +132,22 @@ class MyServerProtocol(WebSocketServerProtocol):
     file: Optional[File] = None
     file_data: Optional[FileData] = None
 
-    def send_message(self, message: TableParserMessage) -> None:
+    def send_message(self, wrapper: TableParserWrapper) -> None:
         logging.debug("sending message")
         self.sendMessage(
-            message.json(by_alias=True, ensure_ascii=False).encode("utf8"), False
+            wrapper.message.json(by_alias=True, ensure_ascii=False).encode("utf8"),
+            False,
         )
 
     def send_error(self, error: str) -> None:
-        self.send_message(TableParserMessage(status=Status.error, error=error))
+        self.send_message(TableParserWrapper(message=Error(error=error)))
 
     def on_text_message(self, payload: bytes) -> None:
-        message = TableParserMessage.parse_raw(payload.decode("utf8"))
+        message = TableParserWrapper.message.parse_raw(payload.decode("utf8"))
         print(message)
 
         # initialize
-        if message.file:
+        if message.status == "PREPARE_UPLOAD":
             self.file = message.file
             self.file_data = FileData()
             logging.info(f"Ready for data from {self.file.name}")
@@ -172,7 +179,7 @@ class MyServerProtocol(WebSocketServerProtocol):
             logging.info(f"df length {len(df)}")
 
             # all set
-            self.send_message(TableParserMessage(status=Status.upload_success))
+            self.send_message(TableParserWrapper(message=UploadSuccess()))
 
             # # create base
             # create_base(self.file)
@@ -186,9 +193,7 @@ class MyServerProtocol(WebSocketServerProtocol):
                 self.send_error(f"Could not save file; error: {e}")
                 raise e
             self.send_message(
-                TableParserMessage(
-                    status=Status.saved, uploaded_file_id=uploaded_file_id
-                )
+                TableParserWrapper(message=Saved(uploaded_file_id=uploaded_file_id))
             )
         else:
             logging.debug(

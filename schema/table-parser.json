@@ -1,56 +1,118 @@
 {
   "title": "Table Parser Message",
-  "type": "object",
-  "properties": {
-    "status": {
-      "enum": [
-        "PREPARE_UPLOAD",
-        "UPLOAD_SUCCESS",
-        "SAVED",
-        "ERROR"
-      ],
-      "type": "string"
-    },
-    "error": {
-      "type": "string",
-      "default": ""
-    },
-    "file": {
+  "oneOf": [
+    {
       "type": "object",
+      "description": "Error message",
       "properties": {
-        "name": {
-          "type": "string"
+        "status": {
+          "const": "ERROR"
         },
-        "nSlices": {
-          "type": "number"
-        },
-        "accessToken": {
-          "type": "string"
-        },
-        "userId": {
-          "type": "string"
-        },
-        "contentType": {
+        "error": {
           "type": "string"
         }
       },
       "additionalProperties": false,
       "required": [
-        "name",
-        "nSlices",
-        "accessToken",
-        "userId",
-        "contentType"
+        "status",
+        "error"
       ]
     },
-    "uploadedFileId": {
-      "type": "string"
+    {
+      "type": "object",
+      "description": "Upload Success",
+      "properties": {
+        "status": {
+          "const": "UPLOAD_SUCCESS"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "status": {
+          "const": "PREPARE_UPLOAD"
+        },
+        "file": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "nSlices": {
+              "type": "number"
+            },
+            "accessToken": {
+              "type": "string"
+            },
+            "userId": {
+              "type": "string"
+            },
+            "contentType": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "nSlices",
+            "accessToken",
+            "userId",
+            "contentType"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "file"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "status": {
+          "const": "SAVED"
+        },
+        "uploadedFileId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "uploadedFileId"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "status": {
+          "const": "TABLE_UPDATE"
+        },
+        "rowData": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "columnDefs": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "rowData",
+        "columnDefs"
+      ]
     }
-  },
-  "additionalProperties": false,
-  "required": [
-    "isBinary",
-    "status",
-    "error"
   ]
 }

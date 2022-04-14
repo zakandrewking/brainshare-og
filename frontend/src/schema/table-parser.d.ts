@@ -5,15 +5,34 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface TableParserMessage {
-  status: "PREPARE_UPLOAD" | "UPLOAD_SUCCESS" | "SAVED" | "ERROR";
-  error: string;
-  file?: {
-    name: string;
-    nSlices: number;
-    accessToken: string;
-    userId: string;
-    contentType: string;
-  };
-  uploadedFileId?: string;
-}
+export type TableParserMessage =
+  | {
+      status: "ERROR";
+      error: string;
+    }
+  | {
+      status: "UPLOAD_SUCCESS";
+    }
+  | {
+      status: "PREPARE_UPLOAD";
+      file: {
+        name: string;
+        nSlices: number;
+        accessToken: string;
+        userId: string;
+        contentType: string;
+      };
+    }
+  | {
+      status: "SAVED";
+      uploadedFileId: string;
+    }
+  | {
+      status: "TABLE_UPDATE";
+      rowData: {
+        [k: string]: unknown;
+      }[];
+      columnDefs: {
+        [k: string]: unknown;
+      }[];
+    };

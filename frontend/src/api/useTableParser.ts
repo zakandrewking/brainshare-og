@@ -9,19 +9,6 @@ import { TableParserMessage } from '../schema/table-parser'
 const URL = 'ws://' + window.location.host + '/api/table-parser/sock'
 const WEBSOCKET_CLOSE_TIMEOUT_MS = 2000
 
-// print the websocket state
-function logReadyState (websocket: WebSocket) {
-  if (websocket.readyState === websocket.CLOSED) {
-    console.log('- websocket closed')
-  } else if (websocket.readyState === websocket.CLOSING) {
-    console.log('- websocket closing')
-  } else if (websocket.readyState === websocket.CONNECTING) {
-    console.log('- websocket connecting')
-  } else if (websocket.readyState === websocket.OPEN) {
-    console.log('- websocket open')
-  }
-}
-
 // If no one is listening after a timeout, then close the websocket
 let websocketCloseTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -36,20 +23,19 @@ const listeners: Set<Listener> = new Set()
 // websocket
 let websocket: WebSocket | null = null
 const reopen = () => {
-  console.log('(Re)opening WebSocket')
+  console.debug('(Re)opening WebSocket')
   if (websocket) {
-    logReadyState(websocket)
     websocket.close()
   }
   websocket = new WebSocket(URL)
   // Keep a single copy of the websocket
   websocket.onopen = () => {
-    console.log('WebSocket opened')
+    console.debug('WebSocket opened')
     listeners.forEach((listener) => listener.onOpen())
   }
   websocket.onclose = () => {
     // TODO try to reopen
-    console.log('WebSocket closed')
+    console.debug('WebSocket closed')
     listeners.forEach((listener) => listener.onClose())
   }
   websocket.onmessage = (event: MessageEvent) => {
@@ -61,7 +47,7 @@ const reopen = () => {
 export default function useTableParser (listener: Listener) {
   useEffect(() => {
     listeners.add(listener)
-    console.log('added listener', listeners)
+    console.debug('Added listener', listeners)
 
     // don't close it now
     if (websocketCloseTimeout) clearTimeout(websocketCloseTimeout)
@@ -80,7 +66,7 @@ export default function useTableParser (listener: Listener) {
     // Clean up any listeners when the component unmounts
     return function cleanup () {
       listeners.delete(listener)
-      console.log('deleted listener', listeners)
+      console.debug('Deleted listener', listeners)
 
       // If no one is listening after a timeout, then close the websocket after
       // a short delay
@@ -88,7 +74,7 @@ export default function useTableParser (listener: Listener) {
         if (websocketCloseTimeout) clearTimeout(websocketCloseTimeout)
         websocketCloseTimeout = setTimeout(() => {
           if (websocket) {
-            console.log('Closing websocket')
+            console.debug('Closing websocket')
             websocket.close()
             websocket = null
           }

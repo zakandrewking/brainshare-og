@@ -28,9 +28,6 @@ function MyDropzone ({ session }: { session: Session }) {
       if (message.status === 'UPLOAD_SUCCESS') {
         setStatus('Saving')
       } else if (message.status === 'SAVED') {
-        if (!message.uploadedFileId) {
-          throw Error('uploadedFileId not set in message SAVED')
-        }
         setStatus('Saved ... preparing your file')
         setTimeout(
           () => navigate(`/uploads/${message.uploadedFileId}/prepare-base`),
@@ -67,8 +64,7 @@ function MyDropzone ({ session }: { session: Session }) {
         contentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       },
-      status: 'PREPARE_UPLOAD',
-      error: ''
+      status: 'PREPARE_UPLOAD'
     }
     try {
       sendJsonMessage(message)
