@@ -2,7 +2,7 @@
 #   filename:  table-parser.json
 
 from __future__ import annotations
-from typing import Union, Literal
+from typing import Union, Literal, List, Any, Dict
 from pydantic import BaseModel, Extra, Field
 
 
@@ -53,6 +53,24 @@ class Saved(BaseModel):
     uploaded_file_id: str = Field(..., alias="uploadedFileId")
 
 
+class RequestTableUpdate(BaseModel):
+    class Config:
+        extra = Extra.forbid
+        allow_population_by_field_name = True
+
+    status: Literal["REQUEST_TABLE_UPDATE"] = "REQUEST_TABLE_UPDATE"
+
+
+class TableUpdate(BaseModel):
+    class Config:
+        extra = Extra.forbid
+        allow_population_by_field_name = True
+
+    status: Literal["TABLE_UPDATE"]
+    row_data: List[Dict[str, Any]] = Field(..., alias="rowData")
+    column_defs: List[Dict[str, Any]] = Field(..., alias="columnDefs")
+
+
 class TableParserWrapper(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -60,8 +78,5 @@ class TableParserWrapper(BaseModel):
 
     # need to wrap the message to get both pydantic parsing & mypy type checking
     message: Union[
-        Error,
-        UploadSuccess,
-        PrepareUpload,
-        Saved,
+        Error, UploadSuccess, PrepareUpload, Saved, RequestTableUpdate, TableUpdate
     ]

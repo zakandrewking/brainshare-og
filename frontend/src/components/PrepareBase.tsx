@@ -15,17 +15,8 @@ import { TableParserMessage } from '../schema/table-parser'
 export default function PrepareBase () {
   const [status, setStatus] = useState('')
 
-  const [rowData, setRowData] = useState([
-    { make: 'Toyota', model: 'Celica', price: 35000 },
-    { make: 'Ford', model: 'Mondeo', price: 32000 },
-    { make: 'Porsche', model: 'Boxter', price: 72000 }
-  ])
-
-  const [columnDefs, setColumnDefs] = useState([
-    { field: 'make' },
-    { field: 'model' },
-    { field: 'price' }
-  ])
+  const [rowData, setRowData] = useState<any[]>([])
+  const [columnDefs, setColumnDefs] = useState<any[]>([])
 
   useTableParser({
     onOpen: () => setStatus('Connected'),

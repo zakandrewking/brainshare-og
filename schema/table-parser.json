@@ -92,6 +92,18 @@
       "type": "object",
       "properties": {
         "status": {
+          "const": "REQUEST_TABLE_UPDATE"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "status": {
           "const": "TABLE_UPDATE"
         },
         "rowData": {

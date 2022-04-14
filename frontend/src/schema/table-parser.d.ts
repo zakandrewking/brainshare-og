@@ -28,6 +28,9 @@ export type TableParserMessage =
       uploadedFileId: string;
     }
   | {
+      status: "REQUEST_TABLE_UPDATE";
+    }
+  | {
       status: "TABLE_UPDATE";
       rowData: {
         [k: string]: unknown;
