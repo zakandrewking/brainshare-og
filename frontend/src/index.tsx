@@ -14,6 +14,7 @@ import Account from './components/Account'
 import { TableView, TableDetail } from './components/Table'
 import UploadDetail from './components/UploadDetail'
 import PrepareBase from './components/PrepareBase'
+import { NotFound404 } from './components/Components'
 
 // in development, auto-log-in
 if (process.env.NODE_ENV === 'development') {
@@ -69,7 +70,7 @@ ReactDOM.render(
                 path="/bases/:id"
                 element={<TableDetail tableName="bases" />}
               />
-              <Route path="*" element={<p>Nothing here!</p>} />
+              <Route path="*" element={<NotFound404 />} />
             </Route>
           </Routes>
         </SWRConfig>

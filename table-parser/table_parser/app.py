@@ -1,10 +1,9 @@
 import os
 import string
 import random
-from types import coroutine
-from typing import Optional, Final, Any
+from typing import Optional, Final, Any, Dict
 import logging
-import sys
+import json
 from pydantic import BaseModel, Field, Extra
 import pandas as pd  # type: ignore
 import io
@@ -56,9 +55,15 @@ BUCKET_NAME = "uploaded_files"
 #         # user clicks "create db" button, which hits db-management service, creates VM
 
 #         # TODO clean up temp files and sessions
-#         # NOTE requires stateful load balancing, but that's ok? https://cloud.google.com/load-balancing/docs/backend-service#session_affinity
+#         # NOTE requires stateful load balancing, but that's ok?
+#                https://cloud.google.com/load-balancing/docs/backend-service#session_affinity
+#                https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4.2-option%20prefer-last-server
+#                https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4.2-cookie
 
-# Data
+
+# TODO cache data using the file access token + file object name as key?
+# TODO also need to perform some authentication and authorization
+# data_frame_cache: Dict[str : pd.DataFrame] = {}
 
 
 class FileData(BaseModel):
@@ -82,7 +87,7 @@ class FileData(BaseModel):
 #     }
 
 
-def upload_file(file: File, file_data: FileData) -> str:
+async def upload_file(file: File, file_data: FileData) -> str:
     """1 upload data into bucket with random object name.
 
     Returns UUID for object.
@@ -101,14 +106,14 @@ def upload_file(file: File, file_data: FileData) -> str:
         "cache-control": "3600",
         "x-upsert": "false",
     }
-    result = httpx.post(url, files=files, headers=headers)
+    result = await httpx.post(url, files=files, headers=headers)
     logging.debug(f"upload result: {result.text}")
     result.raise_for_status()
     object_key = result.json()["Key"]  # e.g. 'uploaded_files/Book1.56884IBTXK.xlsx'
     return object_key
 
 
-def insert_upload(file: File, object_key: str) -> str:
+async def insert_upload(file: File, object_key: str) -> str:
     """2 insert into table for user 'uploads' with foreign key to bucket"""
     url = f"{SUPABASE_REST_URL}/uploaded_files"
     headers = {  # TODO make a function
@@ -119,12 +124,26 @@ def insert_upload(file: File, object_key: str) -> str:
     data = UploadedFiles(
         name=file.name, owner=UUID(file.user_id), object_key=object_key
     ).json(exclude_none=True)
-    result = httpx.post(url, content=data, headers=headers)
+    result = await httpx.post(url, content=data, headers=headers)
     logging.debug(f"post result: {result.status_code}")
     logging.debug(f"post result: {result.text}")
     logging.debug(f"post result: {result.headers}")
     result.raise_for_status()
     return result.json()[0]["id"]
+
+
+async def load_file(access_token: str, object_key: str) -> pd.DataFrame:
+    """Load data from bucket into pandas dataframe"""
+    headers = {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + access_token,
+    }
+    url: str = f"{SUPABASE_STORAGE_URL}/object/{object_key}"
+    result = await httpx.get(url, headers=headers)
+    result.raise_for_status()
+    data = result.body
+    df = pd.read_excel(io.BytesIO(data))
+    return df
 
 
 # Websockets
@@ -145,9 +164,10 @@ class MyServerProtocol(WebSocketServerProtocol):
     def send_error(self, error: str) -> None:
         self.send_message(TableParserWrapper(message=Error(error=error)))
 
-    def on_text_message(self, payload: bytes) -> None:
-        message = TableParserWrapper.message.parse_raw(payload.decode("utf8"))
-        print(message)
+    async def on_text_message(self, payload: bytes) -> None:
+        message = TableParserWrapper.parse_obj(
+            {"message": json.loads(payload.decode("utf8"))}
+        ).message
 
         # initialize
         if message.status == "PREPARE_UPLOAD":
@@ -156,10 +176,20 @@ class MyServerProtocol(WebSocketServerProtocol):
             logging.info(f"Ready for data from {self.file.name}")
         elif message.status == "REQUEST_TABLE_UPDATE":
             df = self.data_frame
-            if not df:
-                return self.send_message(
-                    TableParserWrapper(message=Error(error="No table data available"))
-                )
+
+            if df is None:
+                # try to load the data
+                try:
+                    df = await load_file(message.access_token, message.object_key)
+                    self.df = df
+                except Exception as e:
+                    self.send_message(
+                        TableParserWrapper(
+                            message=Error(error="Could not load the table")
+                        )
+                    )
+                    raise e
+
             table_data = TableData(
                 row_data=df.to_dict(orient="records"),
                 column_defs=[{"field": column for column in df.columns}],
@@ -168,9 +198,9 @@ class MyServerProtocol(WebSocketServerProtocol):
                 TableParserWrapper(message=TableUpdate(table_data=table_data))
             )
         else:
-            raise Exception(f"No file provided with message status {message.status}")
+            raise Exception(f"Unrecognized message status: {message.status}")
 
-    def on_binary_message(self, payload: bytes) -> None:
+    async def on_binary_message(self, payload: bytes) -> None:
         if not self.file or not self.file_data:
             return self.send_error("Not ready for file data")
 
@@ -204,8 +234,8 @@ class MyServerProtocol(WebSocketServerProtocol):
 
             # upload file and insert upload row to track details
             try:
-                object_key = upload_file(self.file, self.file_data)
-                uploaded_file_id = insert_upload(self.file, object_key)
+                object_key = await upload_file(self.file, self.file_data)
+                uploaded_file_id = await insert_upload(self.file, object_key)
             except Exception as e:
                 self.send_error(f"Could not save file; error: {e}")
                 raise e
@@ -221,12 +251,12 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     # Methods to subclass
 
-    def onMessage(self, payload: bytes, isBinary: bool) -> None:
+    async def onMessage(self, payload: bytes, isBinary: bool) -> None:
         logging.debug(f"message received (binary {isBinary})")
         if isBinary:
-            self.on_binary_message(payload)
+            await self.on_binary_message(payload)
         else:
-            self.on_text_message(payload)
+            await self.on_text_message(payload)
 
     def onConnect(self, request: Any) -> None:
         logging.info("Client connecting: {0}".format(request.peer))

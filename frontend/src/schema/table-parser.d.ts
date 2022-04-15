@@ -29,6 +29,8 @@ export type TableParserMessage =
     }
   | {
       status: "REQUEST_TABLE_UPDATE";
+      accessToken?: string;
+      objectKey?: string;
     }
   | {
       status: "TABLE_UPDATE";

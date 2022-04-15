@@ -59,6 +59,16 @@ class RequestTableUpdate(BaseModel):
         allow_population_by_field_name = True
 
     status: Literal["REQUEST_TABLE_UPDATE"] = "REQUEST_TABLE_UPDATE"
+    access_token: str = Field(..., alias="accessToken")
+    object_key: str = Field(..., alias="objectKey")
+
+
+class ColumnDef(BaseModel):
+    class Config:
+        extra = Extra.forbid
+        allow_population_by_field_name = True
+
+    field: str
 
 
 class TableData(BaseModel):
@@ -67,7 +77,7 @@ class TableData(BaseModel):
         allow_population_by_field_name = True
 
     row_data: List[Dict[str, Any]] = Field(..., alias="rowData")
-    column_defs: List[Dict[str, Any]] = Field(..., alias="columnDefs")
+    column_defs: List[ColumnDef] = Field(..., alias="columnDefs")
 
 
 class TableUpdate(BaseModel):
@@ -87,4 +97,4 @@ class TableParserWrapper(BaseModel):
     # need to wrap the message to get both pydantic parsing & mypy type checking
     message: Union[
         Error, UploadSuccess, PrepareUpload, Saved, RequestTableUpdate, TableUpdate
-    ]
+    ] = Field()

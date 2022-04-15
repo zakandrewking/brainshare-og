@@ -60,6 +60,8 @@ const reopen = () => {
       // share cache
       if (message.status === 'TABLE_UPDATE' && listener.onTableData) {
         listener.onTableData(tableCache)
+      } else if (message.status === 'ERROR') {
+        console.error(`table-parser error: ${message.error}`)
       }
     })
   }

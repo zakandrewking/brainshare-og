@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone'
 import { Link, useNavigate } from 'react-router-dom'
 import { Session } from '@supabase/supabase-js'
 
-import { Body, Button } from './Components'
+import { Body, Button, NotFound404 } from './Components'
 import { MessageBoxContext } from '../context/MessageBox'
 import { sliceFile } from '../util/files'
 import { UserSessionContext } from '../context/UserSession'
@@ -29,7 +29,9 @@ function MyDropzone ({ session }: { session: Session }) {
         setStatus('Saving')
       } else if (message.status === 'SAVED') {
         setStatus('Saved ... preparing your file')
-        sendJsonMessage({ status: 'REQUEST_TABLE_UPDATE' })
+        sendJsonMessage({
+          status: 'REQUEST_TABLE_UPDATE'
+        })
         setTimeout(
           () => navigate(`/uploads/${message.uploadedFileId}/prepare-base`),
           2000
@@ -141,6 +143,9 @@ function MyDropzone ({ session }: { session: Session }) {
 
 function Home () {
   const session = useContext(UserSessionContext)
+
+  if (!session) return <NotFound404 />
+
   return (
     <Body>
       {session
