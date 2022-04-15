@@ -12,14 +12,15 @@ import { snakeCaseToText } from '../util/snakeCaseToText'
 import useTableParser, { TableData } from '../api/useTableParser'
 
 export default function PrepareBase () {
-  const [tableData, setTableData] = useState<TableData | null>()
+  const [tableData, setTableData] = useState<TableData | null>(null)
 
-  const { tableData: firstTableData } = useTableParser({
+  const { tableData: firstTableData, sendJsonMessage } = useTableParser({
     onTableData: (tableData: TableData | null) => {
       setTableData(tableData)
     }
   })
 
+  console.log('firstTableData', firstTableData)
   setTableData(firstTableData)
 
   const tableName = 'uploaded_files'
@@ -50,8 +51,17 @@ export default function PrepareBase () {
           <span className="text-2xl pl-1">&#8725;</span>
           <span className="text-2xl">PrepareBase</span>
         </div>
-        {tableData}
-        <AgGridReact rowData={[]} columnDefs={[]}></AgGridReact>
+        <AgGridReact
+          rowData={tableData?.rowData || []}
+          columnDefs={tableData?.columnDefs || []}
+        ></AgGridReact>
+        <Button
+          onClick={() => {
+            sendJsonMessage({ status: 'REQUEST_TABLE_UPDATE' })
+          }}
+        >
+          Load Data
+        </Button>
       </div>
     </Body>
   )

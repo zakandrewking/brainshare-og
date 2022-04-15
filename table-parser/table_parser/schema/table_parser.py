@@ -75,7 +75,7 @@ class TableUpdate(BaseModel):
         extra = Extra.forbid
         allow_population_by_field_name = True
 
-    status: Literal["TABLE_UPDATE"]
+    status: Literal["TABLE_UPDATE"] = "TABLE_UPDATE"
     table_data: TableData = Field(..., alias="tableData")
 
 

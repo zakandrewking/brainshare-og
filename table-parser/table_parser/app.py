@@ -20,8 +20,10 @@ from .schema.table_parser import (
     TableParserWrapper,
     Error,
     Saved,
+    TableUpdate,
     UploadSuccess,
     File,
+    TableData,
 )
 from .schema.rest_api import UploadedFiles
 
@@ -131,6 +133,7 @@ def insert_upload(file: File, object_key: str) -> str:
 class MyServerProtocol(WebSocketServerProtocol):
     file: Optional[File] = None
     file_data: Optional[FileData] = None
+    data_frame: Optional[pd.DataFrame] = None
 
     def send_message(self, wrapper: TableParserWrapper) -> None:
         logging.debug("sending message")
@@ -151,6 +154,19 @@ class MyServerProtocol(WebSocketServerProtocol):
             self.file = message.file
             self.file_data = FileData()
             logging.info(f"Ready for data from {self.file.name}")
+        elif message.status == "REQUEST_TABLE_UPDATE":
+            df = self.data_frame
+            if not df:
+                return self.send_message(
+                    TableParserWrapper(message=Error(error="No table data available"))
+                )
+            table_data = TableData(
+                row_data=df.to_dict(orient="records"),
+                column_defs=[{"field": column for column in df.columns}],
+            )
+            self.send_message(
+                TableParserWrapper(message=TableUpdate(table_data=table_data))
+            )
         else:
             raise Exception(f"No file provided with message status {message.status}")
 
@@ -176,6 +192,7 @@ class MyServerProtocol(WebSocketServerProtocol):
                 f.write(self.file_data.data)
 
             df = pd.read_excel(io.BytesIO(self.file_data.data))
+            self.data_frame = df
             logging.info(f"df length {len(df)}")
 
             # all set

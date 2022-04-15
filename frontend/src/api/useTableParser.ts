@@ -14,8 +14,8 @@ let websocketCloseTimeout: ReturnType<typeof setTimeout> | null = null
 
 // cache table data so it can be loaded in the background
 export interface TableData {
-  rowData: { [k: string]: any }
-  columnDefs: { [k: string]: any }
+  rowData: { [k: string]: unknown }[]
+  columnDefs: { field: string }[]
 }
 let tableCache: TableData | null = null
 

@@ -37,7 +37,7 @@ export type TableParserMessage =
           [k: string]: unknown;
         }[];
         columnDefs: {
-          [k: string]: unknown;
+          field: string;
         }[];
       };
     };

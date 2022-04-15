@@ -118,7 +118,16 @@
             "columnDefs": {
               "type": "array",
               "items": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "field"
+                ]
               }
             }
           },
