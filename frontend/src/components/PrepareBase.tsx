@@ -11,6 +11,7 @@ import supabase from '../api/supabaseClient'
 import { Body, Button, NotFound404 } from './Components'
 import { snakeCaseToText } from '../util/snakeCaseToText'
 import useTableParser, { TableData } from '../api/useTableParser'
+import { definitions } from '../schema/rest-api'
 
 export default function PrepareBase () {
   const session = useContext(UserSessionContext)
@@ -24,20 +25,34 @@ export default function PrepareBase () {
     }
   })
 
+  const tableName = 'uploaded_files'
+  const { id } = useParams()
+  // TODO typing for data here
+  const { data, error } = useSwr<definitions['uploaded_files']>(
+    `${tableName}?id=${id}`,
+    async () => {
+      const result = await supabase.from(tableName).select().eq('id', id)
+      if (result.error) throw result.error
+      // todo check length
+      if (result.data.length !== 1) throw Error('Wrong number of results')
+      return result.data[0]
+    }
+  )
+
   useEffect(() => {
     console.log('firstTableData', firstTableData)
     setTableData(firstTableData)
-  }, [])
-
-  const tableName = 'uploaded_files'
-  const { id } = useParams()
-  const { data, error } = useSwr(`${tableName}?id=${id}`, async () => {
-    const result = await supabase.from(tableName).select().eq('id', id)
-    if (result.error) throw result.error
-    // todo check length
-    if (result.data.length !== 1) throw Error('Wrong number of results')
-    return result.data[0]
-  })
+    // TODO if there is no tableData, then request it.
+    if (!firstTableData && data && session) {
+      sendJsonMessage({
+        status: 'REQUEST_TABLE_UPDATE',
+        accessToken: session.access_token,
+        objectKey: data.object_key
+      })
+    }
+    // If tableData has already been requested, don't request twice OR have the
+    // server throttle the requests
+  }, [data])
 
   if (!session) return <NotFound404 />
   if (error) return <span>error</span>

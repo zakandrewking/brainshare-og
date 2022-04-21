@@ -30,7 +30,9 @@ function MyDropzone ({ session }: { session: Session }) {
       } else if (message.status === 'SAVED') {
         setStatus('Saved ... preparing your file')
         sendJsonMessage({
-          status: 'REQUEST_TABLE_UPDATE'
+          status: 'REQUEST_TABLE_UPDATE',
+          accessToken: session.access_token,
+          objectKey: message.objectKey
         })
         setTimeout(
           () => navigate(`/uploads/${message.uploadedFileId}/prepare-base`),

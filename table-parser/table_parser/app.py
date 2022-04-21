@@ -65,6 +65,9 @@ BUCKET_NAME = "uploaded_files"
 # TODO also need to perform some authentication and authorization
 # data_frame_cache: Dict[str : pd.DataFrame] = {}
 
+# async httpx client
+client = httpx.AsyncClient()
+
 
 class FileData(BaseModel):
     class Config:
@@ -106,7 +109,7 @@ async def upload_file(file: File, file_data: FileData) -> str:
         "cache-control": "3600",
         "x-upsert": "false",
     }
-    result = await httpx.post(url, files=files, headers=headers)
+    result = await client.post(url, files=files, headers=headers)
     logging.debug(f"upload result: {result.text}")
     result.raise_for_status()
     object_key = result.json()["Key"]  # e.g. 'uploaded_files/Book1.56884IBTXK.xlsx'
@@ -124,7 +127,7 @@ async def insert_upload(file: File, object_key: str) -> str:
     data = UploadedFiles(
         name=file.name, owner=UUID(file.user_id), object_key=object_key
     ).json(exclude_none=True)
-    result = await httpx.post(url, content=data, headers=headers)
+    result = await client.post(url, content=data, headers=headers)
     logging.debug(f"post result: {result.status_code}")
     logging.debug(f"post result: {result.text}")
     logging.debug(f"post result: {result.headers}")
@@ -139,10 +142,10 @@ async def load_file(access_token: str, object_key: str) -> pd.DataFrame:
         "Authorization": "Bearer " + access_token,
     }
     url: str = f"{SUPABASE_STORAGE_URL}/object/{object_key}"
-    result = await httpx.get(url, headers=headers)
+    result = await client.get(url, headers=headers)
     result.raise_for_status()
-    data = result.body
-    df = pd.read_excel(io.BytesIO(data))
+    data = result.iter_bytes()
+    df = pd.read_excel(data)
     return df
 
 
@@ -240,7 +243,11 @@ class MyServerProtocol(WebSocketServerProtocol):
                 self.send_error(f"Could not save file; error: {e}")
                 raise e
             self.send_message(
-                TableParserWrapper(message=Saved(uploaded_file_id=uploaded_file_id))
+                TableParserWrapper(
+                    message=Saved(
+                        uploaded_file_id=uploaded_file_id, object_key=object_key
+                    )
+                )
             )
         else:
             logging.debug(

@@ -2,7 +2,7 @@
 #   filename:  table-parser.json
 
 from __future__ import annotations
-from typing import Union, Literal, List, Any, Dict
+from typing import Union, Literal, List, Any, Dict, Optional
 from pydantic import BaseModel, Extra, Field
 
 
@@ -13,6 +13,7 @@ class Error(BaseModel):
 
     status: Literal["ERROR"] = "ERROR"
     error: str
+    0000
 
 
 class UploadSuccess(BaseModel):
@@ -51,6 +52,7 @@ class Saved(BaseModel):
 
     status: Literal["SAVED"] = "SAVED"
     uploaded_file_id: str = Field(..., alias="uploadedFileId")
+    object_key: str = Field(..., alias="objectKey")
 
 
 class RequestTableUpdate(BaseModel):

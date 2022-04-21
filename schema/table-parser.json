@@ -80,12 +80,16 @@
         },
         "uploadedFileId": {
           "type": "string"
+        },
+        "objectKey": {
+          "type": "string"
         }
       },
       "additionalProperties": false,
       "required": [
         "status",
-        "uploadedFileId"
+        "uploadedFileId",
+        "objectKey"
       ]
     },
     {

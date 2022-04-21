@@ -26,6 +26,7 @@ export type TableParserMessage =
   | {
       status: "SAVED";
       uploadedFileId: string;
+      objectKey: string;
     }
   | {
       status: "REQUEST_TABLE_UPDATE";
